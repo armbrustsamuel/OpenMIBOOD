@@ -221,6 +221,12 @@ if __name__ == '__main__':
                     gdown.download(id=download_id_dict[checkpoint],
                                    output=store_path)
                     file_path = os.path.join(store_path, checkpoint + '.zip')
-                    with zipfile.ZipFile(file_path, 'r') as zip_file:
-                        zip_file.extractall(store_path)
-                    os.remove(file_path)
+
+                    if os.path.exists(file_path):
+                        print(f"The file {file_path} exists.")
+                        with zipfile.ZipFile(file_path, 'r') as zip_file:
+                            zip_file.extractall(store_path)
+                        os.remove(file_path)
+                    else:
+                        print(f"The file {file_path} does not exist. Skipping extraction.")
+                    
