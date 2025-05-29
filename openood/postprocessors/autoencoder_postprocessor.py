@@ -118,7 +118,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
 
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
         
         self.autoencoder.requires_grad_(True)
         self.APS_mode = False
