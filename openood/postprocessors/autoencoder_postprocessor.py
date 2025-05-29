@@ -56,7 +56,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
     def __init__(self, args):
         super().__init__(args)
         # Initialize your autoencoder model here
-        self.autoencoder = Autoencoder(latent_dim=64).cuda()
+        self.autoencoder = Autoencoder(latent_dim=32).cuda()
         
         # self.autoencoder.load_state_dict(torch.load("openood/postprocessors/autoencoder_weights.pth"))
         self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
