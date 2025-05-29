@@ -85,9 +85,11 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 reconstructed = self.autoencoder(data)
                 # Compute reconstruction error as OOD score
                 scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
-                all_scores.append(scores.cpu())
+                # all_scores.append(scores.cpu())
+                all_scores.append(np.atleast_1d(score))
                 all_labels.append(labels)
 
-        all_scores = torch.cat(all_scores)
+        all_scores = np.concatenate(all_scores)
+        # all_scores = torch.cat(all_scores)
         all_labels = torch.cat(all_labels)
         return None, all_scores.numpy(), all_labels.numpy()
