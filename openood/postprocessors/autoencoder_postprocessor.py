@@ -122,7 +122,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
         
         self.autoencoder.requires_grad_(True)
-        self.APS_mode = False
+        self.APS_mode = True
         self.hyperparam_search_done = True
 
     def inference(self, net, dataloader, progress=True):
