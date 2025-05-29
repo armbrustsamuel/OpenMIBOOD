@@ -90,21 +90,21 @@ class Autoencoder(nn.Module):
 #             nn.Sigmoid()
 #         )
 
-    def forward(self, x):
-        encoded = self.encoder(x)
-        decoded = self.decoder(encoded)
-        # Crop or pad decoded to match x's size
-        if decoded.size()[2:] != x.size()[2:]:
-            min_h = min(decoded.size(2), x.size(2))
-            min_w = min(decoded.size(3), x.size(3))
-            decoded = decoded[:, :, :min_h, :min_w]
-            x = x[:, :, :min_h, :min_w]
-        return decoded
-
     # def forward(self, x):
     #     encoded = self.encoder(x)
     #     decoded = self.decoder(encoded)
+    #     # Crop or pad decoded to match x's size
+    #     if decoded.size()[2:] != x.size()[2:]:
+    #         min_h = min(decoded.size(2), x.size(2))
+    #         min_w = min(decoded.size(3), x.size(3))
+    #         decoded = decoded[:, :, :min_h, :min_w]
+    #         x = x[:, :, :min_h, :min_w]
     #     return decoded
+
+    def forward(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return decoded
 
 class AutoencoderPostprocessor(BasePostprocessor):
     def __init__(self, args):
