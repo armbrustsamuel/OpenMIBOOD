@@ -61,7 +61,7 @@ ckpt = torch.load(ckpt_path, map_location='cpu')
 net.load_state_dict(ckpt)
 
 preprocessor = trn.Compose([
-    trn.Resize(50),
+    trn.Resize(64),
     trn.CenterCrop(50),
     trn.ToTensor(),
     trn.Normalize(mean=[0.712, 0.496, 0.756],
