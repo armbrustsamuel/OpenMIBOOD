@@ -116,10 +116,10 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # Load the pre-trained weights for the autoencoder
         # UPDATE HERE with the correct path to your weights
 
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
         print("Loading autoencoder weights...")
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
+        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
+        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
         
         self.autoencoder.requires_grad_(True)
         self.APS_mode = False
