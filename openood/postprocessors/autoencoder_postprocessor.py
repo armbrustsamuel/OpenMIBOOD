@@ -89,9 +89,12 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 # all_scores.append(scores.cpu())
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
                 all_scores.append(scores.cpu().numpy().reshape(-1))
-                all_labels.append(labels)
+                # all_labels.append(labels)
+                all_labels.append(labels.cpu().numpy().reshape(-1))
+
 
         all_scores = np.concatenate(all_scores)
         # all_scores = torch.cat(all_scores)
-        all_labels = torch.cat(all_labels)
-        return None, all_scores, all_labels.numpy()
+        # all_labels = torch.cat(all_labels)
+        all_labels = np.concatenate(all_labels)
+        return None, all_scores, all_labels
