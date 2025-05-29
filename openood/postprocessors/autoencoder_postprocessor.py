@@ -5,53 +5,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# class Autoencoder(nn.Module):
-#     def __init__(self, latent_dim):
-#         super(Autoencoder, self).__init__()
-#         self.latent_dim = latent_dim
-
-#         # Encoder
-#         self.encoder = nn.Sequential(
-#             nn.Conv2d(3, 128, kernel_size=3, stride=1, padding=1),  # 64x64x3 -> 64x64x128
-#             nn.ReLU(),
-#             nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 64x64x128 -> 32x32x128
-#             nn.GroupNorm(num_groups=32, num_channels=128),         # GroupNorm with 32 groups
-
-#             nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1), # 32x32x128 -> 32x32x64
-#             nn.ReLU(),
-#             nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 32x32x64 -> 16x16x64
-#             nn.GroupNorm(num_groups=16, num_channels=64),          # GroupNorm with 16 groups
-
-#             nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1), # 16x16x64 -> 16x16xlatent_dim
-#             nn.ReLU(),
-#             nn.MaxPool2d(kernel_size=2, stride=2, padding=0)        # 16x16xlatent_dim -> 8x8xlatent_dim
-#         )
-
-#         # Decoder
-#         self.decoder = nn.Sequential(
-#             nn.Conv2d(latent_dim, latent_dim, kernel_size=3, stride=1, padding=1), # 8x8xlatent_dim -> 8x8xlatent_dim
-#             nn.ReLU(),
-#             nn.Upsample(scale_factor=2, mode='nearest'),                           # 8x8xlatent_dim -> 16x16xlatent_dim
-#             nn.BatchNorm2d(latent_dim),
-
-#             nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),         # 16x16xlatent_dim -> 16x16x64
-#             nn.ReLU(),
-#             nn.Upsample(scale_factor=2, mode='nearest'),                           # 16x16x64 -> 32x32x64
-#             nn.BatchNorm2d(64),
-
-#             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),                # 32x32x64 -> 32x32x128
-#             nn.ReLU(),
-#             nn.Upsample(scale_factor=2, mode='nearest'),                           # 32x32x128 -> 64x64x128
-
-#             nn.Conv2d(128, 3, kernel_size=3, stride=1, padding=1),                 # 64x64x128 -> 64x64x3
-#             nn.Sigmoid()
-#         )
-
-#     def forward(self, x):
-#         encoded = self.encoder(x)
-#         decoded = self.decoder(encoded)
-#         return decoded
-
 class Autoencoder(nn.Module):
     def __init__(self, latent_dim):
         super(Autoencoder, self).__init__()
@@ -59,38 +12,38 @@ class Autoencoder(nn.Module):
 
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv2d(3, 128, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.GroupNorm(num_groups=32, num_channels=128),
+            nn.Conv2d(3, 128, kernel_size=3, stride=1, padding=1),  # 64x64x3 -> 64x64x128
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 64x64x128 -> 32x32x128
+            nn.GroupNorm(num_groups=32, num_channels=128),         # GroupNorm with 32 groups
 
-            nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.GroupNorm(num_groups=16, num_channels=64),
+            nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1), # 32x32x128 -> 32x32x64
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 32x32x64 -> 16x16x64
+            nn.GroupNorm(num_groups=16, num_channels=64),          # GroupNorm with 16 groups
 
-            nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.MaxPool2d(kernel_size=2, stride=2)
+            nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1), # 16x16x64 -> 16x16xlatent_dim
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0)        # 16x16xlatent_dim -> 8x8xlatent_dim
         )
 
         # Decoder
         self.decoder = nn.Sequential(
-            nn.Conv2d(latent_dim, latent_dim, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(latent_dim, latent_dim, kernel_size=3, stride=1, padding=1), # 8x8xlatent_dim -> 8x8xlatent_dim
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),                           # 8x8xlatent_dim -> 16x16xlatent_dim
             nn.BatchNorm2d(latent_dim),
 
-            nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),         # 16x16xlatent_dim -> 16x16x64
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),                           # 16x16x64 -> 32x32x64
             nn.BatchNorm2d(64),
 
-            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),                # 32x32x64 -> 32x32x128
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),                           # 32x32x128 -> 64x64x128
 
-            nn.Conv2d(128, 3, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(128, 3, kernel_size=3, stride=1, padding=1),                 # 64x64x128 -> 64x64x3
             nn.Sigmoid()
         )
 
@@ -106,7 +59,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder = Autoencoder(latent_dim=64).cuda()
         
         # self.autoencoder.load_state_dict(torch.load("openood/postprocessors/autoencoder_weights.pth"))
-        self.autoencoder.load_state_dict(torch.load("/content/OpenMIBOOD/openood/postprocessors/autoencoder_weights.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
         self.autoencoder.requires_grad_(False)
 
     def inference(self, net, dataloader, progress=True):
