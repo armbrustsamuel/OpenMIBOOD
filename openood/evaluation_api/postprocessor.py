@@ -78,8 +78,6 @@ link_prefix = 'https://raw.githubusercontent.com/Jingkang50/OpenOOD/main/configs
 
 def get_postprocessor(config_root: str, postprocessor_name: str,
                       id_data_name: str):
-    if postprocessor_name == 'autoencoder':
-        return AutoencoderPostprocessor(config), config
     postprocessor_config_path = os.path.join(config_root, 'postprocessors',
                                              f'{postprocessor_name}.yml')
     if not os.path.exists(postprocessor_config_path):
@@ -92,6 +90,8 @@ def get_postprocessor(config_root: str, postprocessor_name: str,
                            Config(**{'dataset': {
                                'name': id_data_name
                            }}))
+    if postprocessor_name == 'autoencoder':
+        return AutoencoderPostprocessor(config), config
     postprocessor = postprocessors[postprocessor_name](config)
     postprocessor.APS_mode = config.postprocessor.APS_mode
     postprocessor.hyperparam_search_done = False
