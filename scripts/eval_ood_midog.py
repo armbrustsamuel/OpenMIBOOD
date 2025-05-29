@@ -62,7 +62,7 @@ net.load_state_dict(ckpt)
 
 preprocessor = trn.Compose([
     trn.Resize(64),
-    trn.CenterCrop(50),
+    trn.CenterCrop(64),
     trn.ToTensor(),
     trn.Normalize(mean=[0.712, 0.496, 0.756],
                     std=[0.167, 0.167, 0.110])
