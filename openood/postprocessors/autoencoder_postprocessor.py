@@ -57,10 +57,11 @@ class AutoencoderPostprocessor(BasePostprocessor):
         super().__init__(args)
         # Initialize your autoencoder model here
         self.autoencoder = Autoencoder(latent_dim=32).cuda()
-        
         # self.autoencoder.load_state_dict(torch.load("openood/postprocessors/autoencoder_weights.pth"))
         self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
         self.autoencoder.requires_grad_(False)
+        self.APS_mode = False
+        self.hyperparam_search_done = True
 
     def inference(self, net, dataloader, progress=True):
         self.autoencoder.eval()
