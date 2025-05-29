@@ -14,17 +14,17 @@ class Autoencoder(nn.Module):
         self.encoder = nn.Sequential(
             nn.Conv2d(3, 128, kernel_size=3, stride=1, padding=1),  # 64x64x3 -> 64x64x128
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=1),       # 64x64x128 -> 32x32x128
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 64x64x128 -> 32x32x128
             nn.GroupNorm(num_groups=32, num_channels=128),         # GroupNorm with 32 groups
 
             nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1), # 32x32x128 -> 32x32x64
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=1),       # 32x32x64 -> 16x16x64
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 32x32x64 -> 16x16x64
             nn.GroupNorm(num_groups=16, num_channels=64),          # GroupNorm with 16 groups
 
             nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1), # 16x16x64 -> 16x16xlatent_dim
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=1)        # 16x16xlatent_dim -> 8x8xlatent_dim
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0)        # 16x16xlatent_dim -> 8x8xlatent_dim
         )
 
         # Decoder
@@ -50,7 +50,18 @@ class Autoencoder(nn.Module):
     def forward(self, x):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
+        # Crop or pad decoded to match x's size
+        if decoded.size()[2:] != x.size()[2:]:
+            min_h = min(decoded.size(2), x.size(2))
+            min_w = min(decoded.size(3), x.size(3))
+            decoded = decoded[:, :, :min_h, :min_w]
+            x = x[:, :, :min_h, :min_w]
         return decoded
+
+    # def forward(self, x):
+    #     encoded = self.encoder(x)
+    #     decoded = self.decoder(encoded)
+    #     return decoded
 
 class AutoencoderPostprocessor(BasePostprocessor):
     def __init__(self, args):
