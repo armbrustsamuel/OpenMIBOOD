@@ -48,59 +48,6 @@ class Autoencoder(nn.Module):
             nn.Sigmoid()
         )
 
-# class Autoencoder(nn.Module):
-#     def __init__(self, latent_dim):
-#         super(Autoencoder, self).__init__()
-#         self.latent_dim = latent_dim
-
-#         # Encoder
-#         self.encoder = nn.Sequential(
-#             nn.Conv2d(3, 128, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-#             nn.MaxPool2d(kernel_size=2, stride=2),
-#             nn.GroupNorm(num_groups=32, num_channels=128),
-
-#             nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-#             nn.MaxPool2d(kernel_size=2, stride=2),
-#             nn.GroupNorm(num_groups=16, num_channels=64),
-
-#             nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-#             nn.MaxPool2d(kernel_size=2, stride=2)
-#         )
-
-#         # Decoder
-#         self.decoder = nn.Sequential(
-#             nn.Conv2d(latent_dim, latent_dim, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-#             nn.Upsample(scale_factor=2, mode='nearest'),
-#             nn.BatchNorm2d(latent_dim),
-
-#             nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-#             nn.Upsample(scale_factor=2, mode='nearest'),
-#             nn.BatchNorm2d(64),
-
-#             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-#             nn.Upsample(scale_factor=2, mode='nearest'),
-
-#             nn.Conv2d(128, 3, kernel_size=3, stride=1, padding=1),
-#             nn.Sigmoid()
-#         )
-
-    # def forward(self, x):
-    #     encoded = self.encoder(x)
-    #     decoded = self.decoder(encoded)
-    #     # Crop or pad decoded to match x's size
-    #     if decoded.size()[2:] != x.size()[2:]:
-    #         min_h = min(decoded.size(2), x.size(2))
-    #         min_w = min(decoded.size(3), x.size(3))
-    #         decoded = decoded[:, :, :min_h, :min_w]
-    #         x = x[:, :, :min_h, :min_w]
-    #     return decoded
-
     def forward(self, x):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
@@ -117,8 +64,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # UPDATE HERE with the correct path to your weights
 
         print("Loading autoencoder weights...")
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
+        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
         
         self.autoencoder.requires_grad_(True)
@@ -138,9 +85,13 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
                 # all_scores.append(scores.cpu())
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
-                all_scores.append(scores.cpu().numpy().reshape(-1))
+
+                # all_scores.append(scores.cpu().numpy().reshape(-1))
+                all_scores.append(scores.cpu().detach().numpy())
+                
                 # all_labels.append(labels)
-                all_labels.append(labels.cpu().numpy().reshape(-1))
+                # all_labels.append(labels.cpu().numpy().reshape(-1))
+                all_labels.append(labels.cpu().detach().numpy())
 
 
         all_scores = np.concatenate(all_scores)
