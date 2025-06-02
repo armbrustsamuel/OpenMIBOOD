@@ -98,6 +98,12 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # all_scores = torch.cat(all_scores)
         # all_labels = torch.cat(all_labels)
         all_labels = np.concatenate(all_labels)
+
+        import matplotlib.pyplot as plt
         
-        # return np.zeros_like(all_labels), all_scores, all_labels
-        return all_labels, all_scores, all_labels
+        plt.hist(all_scores[all_labels == 0], bins=50, alpha=0.5, label='ID')
+        plt.hist(all_scores[all_labels != 0], bins=50, alpha=0.5, label='OOD')
+        plt.legend()
+        plt.show()
+        
+        return np.zeros_like(all_labels), all_scores, all_labels
