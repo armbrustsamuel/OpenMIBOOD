@@ -98,4 +98,6 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # all_scores = torch.cat(all_scores)
         # all_labels = torch.cat(all_labels)
         all_labels = np.concatenate(all_labels)
-        return np.zeros_like(all_labels), all_scores, all_labels
+        
+        # return np.zeros_like(all_labels), all_scores, all_labels
+        return all_labels, all_scores, all_labels
