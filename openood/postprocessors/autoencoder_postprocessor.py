@@ -171,7 +171,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
 
                 # all_scores.append(scores.cpu().numpy().reshape(-1))
-                all_scores.append(avg_score.cpu().detach().numpy())
+                # all_scores.append(avg_score.cpu().detach().numpy())
+                all_scores.append(avg_score)
                 
                 # all_labels.append(labels)
                 # all_labels.append(labels.cpu().numpy().reshape(-1))
