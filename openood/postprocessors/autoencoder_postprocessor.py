@@ -102,8 +102,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # all_labels = torch.cat(all_labels)
         all_labels = np.concatenate(all_labels)
 
-        print("ID scores:", all_scores[all_labels == 0][:10])
-        print("OOD scores:", all_scores[all_labels != 0][:10])
+        print("ID scores:", all_scores[all_labels == 0][:100])
+        print("OOD scores:", all_scores[all_labels != 0][:100])
 
         # import matplotlib.pyplot as plt
 
