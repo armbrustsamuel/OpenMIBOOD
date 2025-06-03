@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import torch
 import torchvision.models as models
 
 class MultiLayerFeatureExtractor(nn.Module):
@@ -123,7 +122,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_5e-4.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
+        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
         
         self.autoencoder.requires_grad_(True)
 
