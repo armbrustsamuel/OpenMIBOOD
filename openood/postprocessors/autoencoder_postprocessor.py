@@ -140,7 +140,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # selected_layer_weights = [1.0, 0.75, 0.5]
 
         selected_layers = ['block2_conv2',"block3_conv3",'block4_conv3']
-        selected_layer_weights = [2.0 , 4.0 , 8.0]
+        selected_layer_weights = [2.0 , 4.0 , 2.0]
 
         # Import your PerceptualLoss class here or define it above
         self.criterion = PerceptualLoss(vgg19, selected_layers, selected_layer_weights)
@@ -166,7 +166,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 
                 # For reporting average loss:
                 avg_score = scores.mean().item()
-                print("Average Perceptual Loss (Validation):", avg_score)
+                # print("Average Perceptual Loss (Validation):", avg_score)
                 # scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
 
 
