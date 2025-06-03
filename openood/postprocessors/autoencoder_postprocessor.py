@@ -122,8 +122,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_5e-4.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
+        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
         
         self.autoencoder.requires_grad_(True)
 
@@ -160,16 +160,18 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 # print("Data:", data)
 
                 # --- Use perceptual loss as OOD score ---
-                scores = self.criterion(data, reconstructed)
+                scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
+                
+                # For reporting average loss:
+                avg_score = scores.mean().item()
 
                 # scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
-
 
                 # all_scores.append(scores.cpu())
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
 
                 # all_scores.append(scores.cpu().numpy().reshape(-1))
-                all_scores.append(scores.cpu().detach().numpy())
+                all_scores.append(avg_score.cpu().detach().numpy())
                 
                 # all_labels.append(labels)
                 # all_labels.append(labels.cpu().numpy().reshape(-1))
