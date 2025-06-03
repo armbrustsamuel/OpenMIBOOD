@@ -38,15 +38,10 @@ class PerceptualLoss(nn.Module):
         self.selected_layer_weights = selected_layer_weights
 
     def forward(self, input, recon):
-        # mean = torch.tensor([0.485, 0.456, 0.406], device=input.device).view(1,3,1,1)
-        # std = torch.tensor([0.229, 0.224, 0.225], device=input.device).view(1,3,1,1)
-        # input_norm = (input - mean) / std
-        # recon_norm = (recon - mean) / std
-        # input_norm = input
-        # recon_norm = recon
-        # Normalize input and reconstruction
-        input_norm = (input - input.mean(dim=(2, 3), keepdim=True)) / (input.std(dim=(2, 3), keepdim=True) + 1e-8)
-        recon_norm = (recon - recon.mean(dim=(2, 3), keepdim=True)) / (recon.std(dim=(2, 3), keepdim=True) + 1e-8)
+        mean = torch.tensor([0.485, 0.456, 0.406], device=input.device).view(1,3,1,1)
+        std = torch.tensor([0.229, 0.224, 0.225], device=input.device).view(1,3,1,1)
+        input_norm = (input - mean) / std
+        recon_norm = (recon - mean) / std
 
         feats_input = self.feature_extractor(input_norm)
         feats_recon = self.feature_extractor(recon_norm)
