@@ -38,10 +38,15 @@ class PerceptualLoss(nn.Module):
         self.selected_layer_weights = selected_layer_weights
 
     def forward(self, input, recon):
-        mean = torch.tensor([0.485, 0.456, 0.406], device=input.device).view(1,3,1,1)
-        std = torch.tensor([0.229, 0.224, 0.225], device=input.device).view(1,3,1,1)
-        input_norm = (input - mean) / std
-        recon_norm = (recon - mean) / std
+        # mean = torch.tensor([0.485, 0.456, 0.406], device=input.device).view(1,3,1,1)
+        # std = torch.tensor([0.229, 0.224, 0.225], device=input.device).view(1,3,1,1)
+        # input_norm = (input - mean) / std
+        # recon_norm = (recon - mean) / std
+        # input_norm = input
+        # recon_norm = recon
+        # Normalize input and reconstruction
+        input_norm = (input - input.mean(dim=(2, 3), keepdim=True)) / (input.std(dim=(2, 3), keepdim=True) + 1e-8)
+        recon_norm = (recon - recon.mean(dim=(2, 3), keepdim=True)) / (recon.std(dim=(2, 3), keepdim=True) + 1e-8)
 
         feats_input = self.feature_extractor(input_norm)
         feats_recon = self.feature_extractor(recon_norm)
@@ -49,12 +54,12 @@ class PerceptualLoss(nn.Module):
         # Compute per-sample perceptual loss
         losses = []
         for f1, f2, w in zip(feats_input, feats_recon, self.selected_layer_weights):
-            # # Compute per-sample MSE (no reduction)
-            # mse = F.mse_loss(f1, f2, reduction='none')
-            # # Average over all but batch dimension
-            # mse = mse.view(mse.size(0), -1).mean(dim=1)
+            # Compute per-sample MSE (no reduction)
             mse = F.mse_loss(f1, f2, reduction='none')
-            mse = mse.view(mse.size(0), -1).sum(dim=1) / 1e6
+            # Average over all but batch dimension
+            mse = mse.view(mse.size(0), -1).mean(dim=1)
+            # mse = F.mse_loss(f1, f2, reduction='none')
+            # mse = mse.view(mse.size(0), -1).sum(dim=1) / 1e6
             losses.append(w * mse)
         # Sum weighted losses for each sample
         total_loss = sum(losses)
