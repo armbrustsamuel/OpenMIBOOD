@@ -39,7 +39,6 @@ class PerceptualLoss(nn.Module):
         self.selected_layer_weights = selected_layer_weights
 
     def forward(self, input, recon):
-        # Assume input and recon are in [0, 1], normalize to ImageNet stats
         mean = torch.tensor([0.485, 0.456, 0.406], device=input.device).view(1,3,1,1)
         std = torch.tensor([0.229, 0.224, 0.225], device=input.device).view(1,3,1,1)
         input_norm = (input - mean) / std
@@ -48,10 +47,17 @@ class PerceptualLoss(nn.Module):
         feats_input = self.feature_extractor(input_norm)
         feats_recon = self.feature_extractor(recon_norm)
 
-        loss = 0.0
+        # Compute per-sample perceptual loss
+        losses = []
         for f1, f2, w in zip(feats_input, feats_recon, self.selected_layer_weights):
-            loss += w * F.mse_loss(f1, f2)
-        return loss
+            # Compute per-sample MSE (no reduction)
+            mse = F.mse_loss(f1, f2, reduction='none')
+            # Average over all but batch dimension
+            mse = mse.view(mse.size(0), -1).mean(dim=1)
+            losses.append(w * mse)
+        # Sum weighted losses for each sample
+        total_loss = sum(losses)
+        return total_loss  # shape: (batch_size,)
 
 class Autoencoder(nn.Module):
     def __init__(self, latent_dim):
@@ -146,8 +152,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 labels = batch['label']
                 reconstructed = self.autoencoder(data)
                 # Compute reconstruction error as OOD score
-                print("Reconstructed:", reconstructed)
-                print("Data:", data)
+                # print("Reconstructed:", reconstructed)
+                # print("Data:", data)
 
                 # --- Use perceptual loss as OOD score ---
                 scores = self.criterion(data, reconstructed)
