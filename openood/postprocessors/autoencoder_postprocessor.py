@@ -54,7 +54,7 @@ class PerceptualLoss(nn.Module):
             # # Average over all but batch dimension
             # mse = mse.view(mse.size(0), -1).mean(dim=1)
             mse = F.mse_loss(f1, f2, reduction='none')
-            mse = mse.view(mse.size(0), -1).sum(dim=1)
+            mse = mse.view(mse.size(0), -1).sum(dim=1) / 1e6
             losses.append(w * mse)
         # Sum weighted losses for each sample
         total_loss = sum(losses)
