@@ -49,10 +49,12 @@ class PerceptualLoss(nn.Module):
         # Compute per-sample perceptual loss
         losses = []
         for f1, f2, w in zip(feats_input, feats_recon, self.selected_layer_weights):
-            # Compute per-sample MSE (no reduction)
+            # # Compute per-sample MSE (no reduction)
+            # mse = F.mse_loss(f1, f2, reduction='none')
+            # # Average over all but batch dimension
+            # mse = mse.view(mse.size(0), -1).mean(dim=1)
             mse = F.mse_loss(f1, f2, reduction='none')
-            # Average over all but batch dimension
-            mse = mse.view(mse.size(0), -1).mean(dim=1)
+            mse = mse.view(mse.size(0), -1).sum(dim=1)
             losses.append(w * mse)
         # Sum weighted losses for each sample
         total_loss = sum(losses)
@@ -65,40 +67,40 @@ class Autoencoder(nn.Module):
 
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv2d(3, 128, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            # nn.GroupNorm(num_groups=128, num_channels=128),  # or 1 group per channel (i.e., InstanceNorm)
-            nn.GroupNorm(num_groups=32, num_channels=128),
+            nn.Conv2d(3, 128, kernel_size=3, stride=1, padding=1),  # 64x64x3 -> 64x64x128
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 64x64x128 -> 32x32x128
+            # nn.GroupNorm(num_groups=32, num_channels=128),         # GroupNorm with 32 groups
+            nn.GroupNorm(num_groups=128, num_channels=128),  # or 1 group per channel (i.e., InstanceNorm)
 
-            nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.GroupNorm(num_groups=16, num_channels=64),
-            # nn.GroupNorm(num_groups=64, num_channels=64),  # or 1 group per channel (i.e., InstanceNorm)
+            nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1), # 32x32x128 -> 32x32x64
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 32x32x64 -> 16x16x64
+            # nn.GroupNorm(num_groups=16, num_channels=64),          # GroupNorm with 16 groups
+            nn.GroupNorm(num_groups=64, num_channels=64),  # or 1 group per channel (i.e., InstanceNorm)
 
-            nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.MaxPool2d(kernel_size=2, stride=2)
+            nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1), # 16x16x64 -> 16x16xlatent_dim
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0)        # 16x16xlatent_dim -> 8x8xlatent_dim
         )
 
         # Decoder
         self.decoder = nn.Sequential(
-            nn.Conv2d(latent_dim, latent_dim, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(latent_dim, latent_dim, kernel_size=3, stride=1, padding=1), # 8x8xlatent_dim -> 8x8xlatent_dim
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),                           # 8x8xlatent_dim -> 16x16xlatent_dim
             nn.BatchNorm2d(latent_dim),
 
-            nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),         # 16x16xlatent_dim -> 16x16x64
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),                           # 16x16x64 -> 32x32x64
             nn.BatchNorm2d(64),
 
-            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=False),  # <-- Ensure inplace=False
-            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),                # 32x32x64 -> 32x32x128
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2, mode='nearest'),                           # 32x32x128 -> 64x64x128
 
-            nn.Conv2d(128, 3, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(128, 3, kernel_size=3, stride=1, padding=1),                 # 64x64x128 -> 64x64x3
             nn.Sigmoid()
         )
 
@@ -127,7 +129,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
         
-        self.autoencoder.requires_grad_(False)
+        self.autoencoder.requires_grad_(True)
 
 
         # --- VGG19 Perceptual Loss Setup ---
@@ -145,7 +147,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # Import your PerceptualLoss class here or define it above
         self.criterion = PerceptualLoss(vgg19, selected_layers, selected_layer_weights)
 
-        self.APS_mode = False
+        self.APS_mode = True
         self.hyperparam_search_done = True
 
     def inference(self, net, dataloader, progress=True):
