@@ -5,6 +5,52 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import torch.nn.functional as F
+
+class MultiLayerFeatureExtractor(nn.Module):
+    def __init__(self, vgg_features_sequential, selected_layers):
+        super().__init__()
+        self.selected_layers = selected_layers
+        # The 'vgg_features_sequential' argument is ALREADY the Sequential module containing the features.
+        # We don't need to access '.features' again.
+        self.vgg_layers = vgg_features_sequential
+        self.layer_mapping = {
+            'block1_conv1': 0,  'block1_conv2': 2,
+            'block2_conv1': 5,  'block2_conv2': 7,
+            'block3_conv1': 10, 'block3_conv2': 12, 'block3_conv3': 14, 'block3_conv4': 16,
+            'block4_conv1': 19, 'block4_conv2': 21, 'block4_conv3': 23, 'block4_conv4': 25,
+            'block5_conv1': 28, 'block5_conv2': 30, 'block5_conv3': 32, 'block5_conv4': 34,
+        }
+
+    def forward(self, x):
+        features = []
+        layer_indices_to_extract = [self.layer_mapping[l] for l in self.selected_layers]
+        for name, layer in enumerate(self.vgg_layers):
+            x = layer(x)
+            if name in layer_indices_to_extract:
+                features.append(x)
+        return features
+
+class PerceptualLoss(nn.Module):
+    def __init__(self, vgg_features_sequential, selected_layers, selected_layer_weights):
+        super().__init__()
+        self.feature_extractor = MultiLayerFeatureExtractor(vgg_features_sequential, selected_layers)
+        self.selected_layer_weights = selected_layer_weights
+
+    def forward(self, input, recon):
+        # Assume input and recon are in [0, 1], normalize to ImageNet stats
+        mean = torch.tensor([0.485, 0.456, 0.406], device=input.device).view(1,3,1,1)
+        std = torch.tensor([0.229, 0.224, 0.225], device=input.device).view(1,3,1,1)
+        input_norm = (input - mean) / std
+        recon_norm = (recon - mean) / std
+
+        feats_input = self.feature_extractor(input_norm)
+        feats_recon = self.feature_extractor(recon_norm)
+
+        loss = 0.0
+        for f1, f2, w in zip(feats_input, feats_recon, self.selected_layer_weights):
+            loss += w * F.mse_loss(f1, f2)
+        return loss
 
 class Autoencoder(nn.Module):
     def __init__(self, latent_dim):
@@ -72,6 +118,20 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
         
         self.autoencoder.requires_grad_(True)
+
+
+        # --- VGG19 Perceptual Loss Setup ---
+        vgg19 = models.vgg19(weights=models.VGG19_Weights.IMAGENET1K_V1).features.cuda().eval()
+        for param in vgg19.parameters():
+            param.requires_grad = False
+
+        # Choose layers and weights (example)
+        selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv4']
+        selected_layer_weights = [1.0, 0.75, 0.5]
+
+        # Import your PerceptualLoss class here or define it above
+        self.criterion = PerceptualLoss(vgg19, selected_layers, selected_layer_weights)
+
         self.APS_mode = True
         self.hyperparam_search_done = True
 
@@ -85,7 +145,15 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 labels = batch['label']
                 reconstructed = self.autoencoder(data)
                 # Compute reconstruction error as OOD score
-                scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
+                print("Reconstructed:", reconstructed)
+                print("Data:", data)
+
+                # --- Use perceptual loss as OOD score ---
+                scores = self.criterion(data, reconstructed)
+
+                # scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
+
+                
                 # all_scores.append(scores.cpu())
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
 
