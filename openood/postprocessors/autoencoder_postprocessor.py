@@ -5,7 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import torch.nn.functional as F
+import torch
+import torchvision.models as models
 
 class MultiLayerFeatureExtractor(nn.Module):
     def __init__(self, vgg_features_sequential, selected_layers):
@@ -153,7 +154,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
 
                 # scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
 
-                
+
                 # all_scores.append(scores.cpu())
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
 
