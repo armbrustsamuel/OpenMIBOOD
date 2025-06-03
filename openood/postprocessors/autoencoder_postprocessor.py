@@ -117,9 +117,9 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # UPDATE HERE with the correct path to your weights
 
         print("Loading autoencoder weights...")
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3.pth"))
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_10_epochs_1e-3_perceptual-diff.pth"))
+        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_10_epochs_1e-3_perceptual-diff.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_5e-4.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
