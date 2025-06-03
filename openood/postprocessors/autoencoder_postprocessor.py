@@ -49,12 +49,12 @@ class PerceptualLoss(nn.Module):
         # Compute per-sample perceptual loss
         losses = []
         for f1, f2, w in zip(feats_input, feats_recon, self.selected_layer_weights):
-            # Compute per-sample MSE (no reduction)
-            mse = F.mse_loss(f1, f2, reduction='none')
-            # Average over all but batch dimension
-            mse = mse.view(mse.size(0), -1).mean(dim=1)
+            # # Compute per-sample MSE (no reduction)
             # mse = F.mse_loss(f1, f2, reduction='none')
-            # mse = mse.view(mse.size(0), -1).sum(dim=1) / 1e6
+            # # Average over all but batch dimension
+            # mse = mse.view(mse.size(0), -1).mean(dim=1)
+            mse = F.mse_loss(f1, f2, reduction='none')
+            mse = mse.view(mse.size(0), -1).sum(dim=1) / 1e6
             losses.append(w * mse)
         # Sum weighted losses for each sample
         total_loss = sum(losses)
@@ -126,8 +126,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_5e-4.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
+        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
         
         self.autoencoder.requires_grad_(True)
 
