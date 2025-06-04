@@ -84,25 +84,25 @@ evaluator = Evaluator(
     num_workers=8)
 
 # load pre-computed scores if exists
-if os.path.isfile(os.path.join(root, 'scores', f'{postprocessor_name}.pkl')):
-    with open(os.path.join(root, 'scores', f'{postprocessor_name}.pkl'),
-              'rb') as f:
-        scores = pickle.load(f)
-    update(evaluator.scores, scores)
-    print('Loaded pre-computed scores from file.')
+# if os.path.isfile(os.path.join(root, 'scores', f'{postprocessor_name}.pkl')):
+#     with open(os.path.join(root, 'scores', f'{postprocessor_name}.pkl'),
+#               'rb') as f:
+#         scores = pickle.load(f)
+#     update(evaluator.scores, scores)
+#     print('Loaded pre-computed scores from file.')
 
-# save postprocessor for future reuse
-if hasattr(evaluator.postprocessor, 'setup_flag'
-           ) or evaluator.postprocessor.hyperparam_search_done is True:
-    pp_save_root = os.path.join(root, 'postprocessors')
-    if not os.path.exists(pp_save_root):
-        os.makedirs(pp_save_root)
+# # save postprocessor for future reuse
+# if hasattr(evaluator.postprocessor, 'setup_flag'
+#            ) or evaluator.postprocessor.hyperparam_search_done is True:
+#     pp_save_root = os.path.join(root, 'postprocessors')
+#     if not os.path.exists(pp_save_root):
+#         os.makedirs(pp_save_root)
 
-    if not os.path.isfile(
-            os.path.join(pp_save_root, f'{postprocessor_name}.pkl')):
-        with open(os.path.join(pp_save_root, f'{postprocessor_name}.pkl'),
-                  'wb') as f:
-            pickle.dump(evaluator.postprocessor, f, pickle.HIGHEST_PROTOCOL)
+#     if not os.path.isfile(
+#             os.path.join(pp_save_root, f'{postprocessor_name}.pkl')):
+#         with open(os.path.join(pp_save_root, f'{postprocessor_name}.pkl'),
+#                   'wb') as f:
+#             pickle.dump(evaluator.postprocessor, f, pickle.HIGHEST_PROTOCOL)
 
 # the metrics is a dataframe
 metrics = evaluator.eval_csid_ood()
