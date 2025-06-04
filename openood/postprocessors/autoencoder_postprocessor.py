@@ -81,8 +81,7 @@ class Autoencoder(nn.Module):
 
             nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1), # 16x16x64 -> 16x16xlatent_dim
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),        # 16x16xlatent_dim -> 8x8xlatent_dim
-            nn.GroupNorm(num_groups=32, num_channels=32),  # or 1 group per channel (i.e., InstanceNorm)
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0)        # 16x16xlatent_dim -> 8x8xlatent_dim
         )
 
         # Decoder
