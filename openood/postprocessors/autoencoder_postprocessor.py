@@ -191,6 +191,11 @@ class AutoencoderPostprocessor(BasePostprocessor):
         print("ID scores:", all_scores[all_labels == 0][:100])
         print("OOD scores:", all_scores[all_labels != 0][:100])
 
+        id_scores = all_scores[all_labels == 0]
+        threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+        # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
+        pred = np.where(all_scores < threshold, 0, -1)
+
         # import matplotlib.pyplot as plt
 
         # plt.hist(all_scores[all_labels == 0], bins=50, alpha=0.5, label='ID')
@@ -198,4 +203,5 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # plt.legend()
         # plt.show()
         
-        return np.zeros_like(all_labels), all_scores, all_labels
+        # return np.zeros_like(all_labels), all_scores, all_labels
+        return pred, all_scores, all_labels
