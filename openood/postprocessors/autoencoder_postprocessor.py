@@ -135,7 +135,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
         self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
         
-        self.autoencoder.requires_grad_(True)
+        self.autoencoder.requires_grad_(False)
 
 
         # --- VGG19 Perceptual Loss Setup ---
