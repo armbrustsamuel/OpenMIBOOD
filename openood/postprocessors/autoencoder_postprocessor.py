@@ -144,10 +144,10 @@ class AutoencoderPostprocessor(BasePostprocessor):
 
         # Choose layers and weights (example)
         # selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv4']
-        # selected_layer_weights = [1.0, 0.75, 0.5]
+        selected_layer_weights = [1.0, 0.75, 0.5]
 
         selected_layers = ['block2_conv2',"block3_conv3",'block4_conv3']
-        selected_layer_weights = [2.0 , 4.0 , 8.0]
+        # selected_layer_weights = [2.0 , 4.0 , 8.0]
 
         # Import your PerceptualLoss class here or define it above
         self.criterion = PerceptualLoss(vgg19, selected_layers, selected_layer_weights)
