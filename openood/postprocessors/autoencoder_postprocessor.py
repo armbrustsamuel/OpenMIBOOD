@@ -209,7 +209,13 @@ class AutoencoderPostprocessor(BasePostprocessor):
         print("OOD scores:", all_scores[all_labels != 0][:100])
 
         id_scores = all_scores[all_labels == 0]
-        threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+        
+        # original thresholding method
+        # threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+
+        # Use 75th percentile of ID scores as threshold
+        threshold = np.percentile(id_scores, 75)
+
         # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
         pred = np.where(all_scores < threshold, 0, -1)
 
