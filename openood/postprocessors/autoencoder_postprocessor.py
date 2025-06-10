@@ -57,7 +57,7 @@ class PerceptualLoss(nn.Module):
 
             mse = F.mse_loss(f1, f2, reduction='none')
             mse = mse.view(mse.size(0), -1).sum(dim=1) / 1e6
-            
+
             losses.append(w * mse)
         # Sum weighted losses for each sample
         total_loss = sum(losses)
@@ -160,6 +160,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder.eval()
         all_scores = []
         all_labels = []
+        mse_weight = 1.0      # You can tune this
+        perceptual_weight = 1.0  # You can tune this
         with torch.no_grad():
             for batch in dataloader:
                 data = batch['data'].cuda()
@@ -173,16 +175,25 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
                 
                 # For reporting average loss:
-                avg_score = scores.mean().item()
+                # avg_score = scores.mean().item()
                 # print("Average Perceptual Loss (Validation):", avg_score)
                 # scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
+
+                # Pixel-wise MSE loss (per sample)
+                mse_scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))  # shape: (batch_size,)
+
+                # Combine losses
+                combined_scores = perceptual_weight * scores + mse_weight * mse_scores
 
 
                 # all_scores.append(scores.cpu())
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
 
                 # all_scores.append(scores.cpu().numpy().reshape(-1))
-                all_scores.append(scores.cpu().detach().numpy())
+
+                all_scores.append(combined_scores.cpu().detach().numpy())
+                # all_scores.append(scores.cpu().detach().numpy())
+            
                 
                 # all_labels.append(labels)
                 # all_labels.append(labels.cpu().numpy().reshape(-1))
@@ -211,3 +222,14 @@ class AutoencoderPostprocessor(BasePostprocessor):
         
         # return np.zeros_like(all_labels), all_scores, all_labels
         return pred, all_scores, all_labels
+    
+
+    # todo
+# Try different combinations of VGG layers and weights.
+# Consider combining perceptual loss with pixel-wise MSE.
+# Investigate data normalization and augmentation.
+# Explore other OOD scoring strategies.
+
+# Tune the threshold (maybe use validation OOD set for optimal threshold).
+# Try combining perceptual loss with pixel-wise MSE.
+# Experiment with different VGG layers/weights or normalization strategies for further gains.
