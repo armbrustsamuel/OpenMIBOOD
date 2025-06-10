@@ -19,6 +19,13 @@ def update(d, u):
     return d
 
 
+def contrast_stretching(tensor):
+    # tensor: (C, H, W), values in [0, 1]
+    min_val = tensor.amin(dim=(1,2), keepdim=True)
+    max_val = tensor.amax(dim=(1,2), keepdim=True)
+    stretched = (tensor - min_val) / (max_val - min_val + 1e-8)
+    return stretched
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--postprocessor', choices=['ash', 'dice', 'dropout', 'ebo', 'fdbd', 'gen', 'klm', 'knn', 'mls', 'mds_ensemble', 'mds', 'nnguide', 'odin', 'openmax', 'rankfeat', 'react', 'relation', 'residual', 'rmds', 'scale', 'she', 'temp_scaling', 'vim', 'msp', 'autoencoder'], default='msp')
 parser.add_argument('--save-csv', action='store_true')
@@ -61,11 +68,13 @@ ckpt = torch.load(ckpt_path, map_location='cpu')
 net.load_state_dict(ckpt)
 
 preprocessor = trn.Compose([
-    trn.Resize(64),
-    trn.CenterCrop(64),
+    # trn.Resize(64),
+    # trn.CenterCrop(64),
+    trn.Resize((64, 64)), # Resize to match autoencoder input
     trn.ToTensor(),
-    trn.Normalize(mean=[0.712, 0.496, 0.756],
-                    std=[0.167, 0.167, 0.110])
+    trn.Lambda(contrast_stretching)
+    # trn.Normalize(mean=[0.712, 0.496, 0.756],
+                    # std=[0.167, 0.167, 0.110])
 ])
 #NAECHSTE SCHRITTE: NEUEN CLEANEN CONTAINER ANLEGEN - IN DEM CONTAINER DANN OPENOOD INSTALLIEREN UND NOCHMAL LAUFEN LASSEN
 net.cuda()
