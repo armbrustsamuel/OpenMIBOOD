@@ -148,8 +148,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # selected_layer_weights = [1.0, 0.75, 0.5]
 
         selected_layers = ['block2_conv2',"block3_conv3",'block4_conv3']
-        selected_layer_weights = [4.0, 2.0, 1.0]
-        # selected_layer_weights = [2.0 , 4.0 , 8.0]
+        # selected_layer_weights = [4.0, 2.0, 1.0]
+        selected_layer_weights = [2.0 , 4.0 , 8.0]
 
 
         # Import your PerceptualLoss class here or define it above
@@ -201,8 +201,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
 
         id_scores = all_scores[all_labels == 0]
         
-        # threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
-        threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
+        threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+        # threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
         
         # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
         pred = np.where(all_scores < threshold, 0, -1)
