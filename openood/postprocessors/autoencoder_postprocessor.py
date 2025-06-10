@@ -198,8 +198,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         print("OOD scores:", all_scores[all_labels != 0][:100])
 
         id_scores = all_scores[all_labels == 0]
-        # threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
-        threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
+        threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+        # threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
         # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
         pred = np.where(all_scores < threshold, 0, -1)
 
