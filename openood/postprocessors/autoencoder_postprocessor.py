@@ -160,8 +160,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder.eval()
         all_scores = []
         all_labels = []
-        mse_weight = 1.0      # You can tune this
-        perceptual_weight = 1.0  # You can tune this
+        mse_weight = 0.3      # You can tune this
+        perceptual_weight = 0.7  # You can tune this
         with torch.no_grad():
             for batch in dataloader:
                 data = batch['data'].cuda()
