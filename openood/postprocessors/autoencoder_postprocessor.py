@@ -173,7 +173,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
                 
                 # For reporting average loss:
-                avg_score = scores.mean().item()
+                # avg_score = scores.mean().item()
                 # print("Average Perceptual Loss (Validation):", avg_score)
                 # scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
 
@@ -198,7 +198,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         print("OOD scores:", all_scores[all_labels != 0][:100])
 
         id_scores = all_scores[all_labels == 0]
-        threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+        # threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+        threshold = id_scores.mean() + 1.0 * id_scores.std()
         # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
         pred = np.where(all_scores < threshold, 0, -1)
 
