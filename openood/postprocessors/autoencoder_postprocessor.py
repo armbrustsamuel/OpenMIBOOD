@@ -186,15 +186,15 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 mse_scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))  # shape: (batch_size,)
 
                 # Combine losses
-                combined_scores = perceptual_weight * scores + mse_weight * mse_scores
+                # combined_scores = perceptual_weight * scores + mse_weight * mse_scores
 
                 # all_scores.append(scores.cpu())
                 # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
 
                 # all_scores.append(scores.cpu().numpy().reshape(-1))
 
-                all_scores.append(combined_scores.cpu().detach().numpy())
-                # all_scores.append(scores.cpu().detach().numpy())
+                # all_scores.append(combined_scores.cpu().detach().numpy())
+                all_scores.append(scores.cpu().detach().numpy())
             
                 
                 # all_labels.append(labels)
