@@ -2,6 +2,7 @@ from util import download_with_figshare, validate_patch
 import os
 import json
 from PIL import Image
+import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--download_path', required=True)
