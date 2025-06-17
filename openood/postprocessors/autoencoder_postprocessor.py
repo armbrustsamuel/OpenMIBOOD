@@ -127,13 +127,6 @@ class AutoencoderPostprocessor(BasePostprocessor):
 
         print("Loading autoencoder weights from /content/autoencoder_weights.pth")
         self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_10_epochs_1e-3_perceptual-diff.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_5e-4.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_hybrid_weights.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_mse_weights.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples.pth"))
-        # self.autoencoder.load_state_dict(torch.load("/content/autoencoder_model_60_epochs_1e-3_perceptual-samples-2.pth"))
         
         self.autoencoder.requires_grad_(False)
 
@@ -168,37 +161,18 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 data = batch['data'].cuda()
                 labels = batch['label']
                 reconstructed = self.autoencoder(data)
-                # Compute reconstruction error as OOD score
-                # print("Reconstructed:", reconstructed)
-                # print("Data:", data)
 
                 # --- Use perceptual loss as OOD score ---
                 scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
-                
-                # For reporting average loss:
-                # avg_score = scores.mean().item()
-                # print("Average Perceptual Loss (Validation):", avg_score)
-                # scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))
 
-
-                # all_scores.append(scores.cpu())
-                # all_scores.append(np.atleast_1d(scores.cpu().numpy()))
-
-                # all_scores.append(scores.cpu().numpy().reshape(-1))
-                all_scores.append(scores.cpu().detach().numpy())
-                
-                # all_labels.append(labels)
-                # all_labels.append(labels.cpu().numpy().reshape(-1))
+                all_scores.append(scores.cpu().detach().numpy())                
                 all_labels.append(labels.cpu().detach().numpy())
 
-
         all_scores = np.concatenate(all_scores)
-        # all_scores = torch.cat(all_scores)
-        # all_labels = torch.cat(all_labels)
         all_labels = np.concatenate(all_labels)
 
-        print("ID scores:", all_scores[all_labels == 0][:100])
-        print("OOD scores:", all_scores[all_labels != 0][:100])
+        # print("ID scores:", all_scores[all_labels == 0][:100])
+        # print("OOD scores:", all_scores[all_labels != 0][:100])
 
         id_scores = all_scores[all_labels == 0]
         
@@ -207,13 +181,6 @@ class AutoencoderPostprocessor(BasePostprocessor):
         
         # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
         pred = np.where(all_scores < threshold, 0, -1)
-
-        # import matplotlib.pyplot as plt
-
-        # plt.hist(all_scores[all_labels == 0], bins=50, alpha=0.5, label='ID')
-        # plt.hist(all_scores[all_labels != 0], bins=50, alpha=0.5, label='OOD')
-        # plt.legend()
-        # plt.show()
         
         # return np.zeros_like(all_labels), all_scores, all_labels
         return pred, all_scores, all_labels
