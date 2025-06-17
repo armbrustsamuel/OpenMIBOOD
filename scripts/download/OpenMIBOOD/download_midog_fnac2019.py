@@ -18,7 +18,7 @@ download_path = args.download_path
 print('##############################################################')
 print('We will try to download the FNAC 2019 dataset automatically from https://1drv.ms/u/s!Al-T6d-_ENf6axsEbvhbEc2gUFs.')
 # download_path = 'tmp/fnac2019.zip'
-download_file = 'fnac2019.zip'
+download_file = '/fnac2019.zip'
 print('If there are any errors with the automatic download, please visit the above link, download the file manually, move it to "tmp/fnac2019.zip", and run this script again.')
 print('##############################################################')
 
