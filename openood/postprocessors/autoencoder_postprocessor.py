@@ -127,7 +127,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
 
         print("Loading autoencoder weights from /content/autoencoder_weights.pth")
         self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
-        
+
         self.autoencoder.requires_grad_(False)
 
 
@@ -183,7 +183,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         pred = np.where(all_scores < threshold, 0, -1)
         
         # return np.zeros_like(all_labels), all_scores, all_labels
-        return pred, all_scores, all_labels
+        return np.zeros_like(all_labels), all_scores, all_labels
     
 
     # todo
