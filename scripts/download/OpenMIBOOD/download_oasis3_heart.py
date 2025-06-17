@@ -10,9 +10,10 @@ base_path = f'{script_dir}/../../../data/oasis/far/SegmentationDecathlon'
 tar_path = f'{script_dir}/tmp/Task02_Heart.tar'
 
 tar_output = f'{script_dir}/tmp/SegmentationDecathlon/Task02_Heart'
-print('Downloading Heart data...')
-id = '1wEB2I6S6tQBVEPxir8cA5kFB8gTQadYY'
-download_with_gdown(id, tar_path)
+# print('Downloading Heart data...')
+# id = '1wEB2I6S6tQBVEPxir8cA5kFB8gTQadYY'
+# download_with_gdown(id, tar_path)
+print('Extracting Heart data from local file directory as download limit was reached...')
 if not os.path.exists(os.path.join(base_path, 'Task02_Heart/imagesTr')):
     with tarfile.open(tar_path, 'r') as tar_file:
         if not os.path.exists(os.path.join(tar_output, 'imagesTr')):
