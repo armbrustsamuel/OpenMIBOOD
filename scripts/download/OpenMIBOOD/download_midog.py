@@ -75,14 +75,14 @@ domain_split = [('1a', 0, 50, ''), ('1b', 50, 100, 'csid'), ('1c', 100, 150, 'cs
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 root = f'{script_dir}/../../../data/midog/'
-all_found = True
-for domain in domain_split:
-    domain_name = domain[0]
-    subfolder = domain[3]
-    dir_path = os.path.join(root, subfolder, domain_name)    
-    if not os.path.exists(dir_path):
-        all_found = False
-        break
+all_found = False
+# for domain in domain_split:
+#     domain_name = domain[0]
+#     subfolder = domain[3]
+#     dir_path = os.path.join(root, subfolder, domain_name)    
+#     if not os.path.exists(dir_path):
+#         all_found = False
+#         break
 
 if not all_found:
     print('Downloading MIDOGpp data...')
