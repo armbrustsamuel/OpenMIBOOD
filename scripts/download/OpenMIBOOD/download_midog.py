@@ -75,14 +75,14 @@ domain_split = [('1a', 0, 50, ''), ('1b', 50, 100, 'csid'), ('1c', 100, 150, 'cs
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 root = f'{script_dir}/../../../data/midog/'
-all_found = False
-# for domain in domain_split:
-#     domain_name = domain[0]
-#     subfolder = domain[3]
-#     dir_path = os.path.join(root, subfolder, domain_name)    
-#     if not os.path.exists(dir_path):
-#         all_found = False
-#         break
+all_found = True
+for domain in domain_split:
+    domain_name = domain[0]
+    subfolder = domain[3]
+    dir_path = os.path.join(root, subfolder, domain_name)    
+    if not os.path.exists(dir_path):
+        all_found = False
+        break
 
 if not all_found:
     print('download_path :', download_path)
@@ -91,51 +91,51 @@ if not all_found:
     # download_with_figshare(download_lists, download_path)
     # download_path = ""
 
-    # midog_data = json.load(open(os.path.join(download_path, 'MIDOGpp.json')))    
+    midog_data = json.load(open(os.path.join(download_path, 'MIDOGpp.json')))    
 
-    # for domain in domain_split:
-    #     domain_name = domain[0]
-    #     start = domain[1]
-    #     end = domain[2]
-    #     subfolder = domain[3]
+    for domain in domain_split:
+        domain_name = domain[0]
+        start = domain[1]
+        end = domain[2]
+        subfolder = domain[3]
     
-    #     print(f"\nProcessing domain {domain_name}...")
-    #     out_dir = os.path.join(root, subfolder, domain_name)
-    #     os.makedirs(out_dir, exist_ok=True)
-    #     for img_index in range(start, end):
-    #         img_data = midog_data['images'][img_index]
-    #         img_name = img_data['file_name']
-    #         print(f"Processing img {img_name}...", end='\r')
-    #         img_id = img_data['id']
-    #         img_dir = os.path.join(out_dir, f"{img_id:03d}")
-    #         os.makedirs(img_dir, exist_ok=True)
-    #         image = Image.open(os.path.join(download_path, img_name))
-    #         img_dims = (img_data['width'], img_data['height'])
-    #         # Get all Annotations with img_id
-    #         annotations = [ann for ann in midog_data['annotations'] if ann['image_id'] == img_id]
-    #         for annotation in annotations:
-    #             label = annotation['category_id']
-    #             bbox = annotation['bbox']
-    #             ann_id = annotation['id']
-    #             # Check if the bbox has a width and height of exactly 50 px
-    #             if bbox[2] - bbox[0] == 50 and bbox[3] - bbox[1] == 50:
-    #                 # Crop the image
-    #                 crop = image.crop(bbox)
-    #                 # Save the crop
-    #                 crop.save(os.path.join(img_dir, f"{img_id:03d}_{ann_id}_{label}.tiff"))
+        print(f"\nProcessing domain {domain_name}...")
+        out_dir = os.path.join(root, subfolder, domain_name)
+        os.makedirs(out_dir, exist_ok=True)
+        for img_index in range(start, end):
+            img_data = midog_data['images'][img_index]
+            img_name = img_data['file_name']
+            print(f"Processing img {img_name}...", end='\r')
+            img_id = img_data['id']
+            img_dir = os.path.join(out_dir, f"{img_id:03d}")
+            os.makedirs(img_dir, exist_ok=True)
+            image = Image.open(os.path.join(download_path, img_name))
+            img_dims = (img_data['width'], img_data['height'])
+            # Get all Annotations with img_id
+            annotations = [ann for ann in midog_data['annotations'] if ann['image_id'] == img_id]
+            for annotation in annotations:
+                label = annotation['category_id']
+                bbox = annotation['bbox']
+                ann_id = annotation['id']
+                # Check if the bbox has a width and height of exactly 50 px
+                if bbox[2] - bbox[0] == 50 and bbox[3] - bbox[1] == 50:
+                    # Crop the image
+                    crop = image.crop(bbox)
+                    # Save the crop
+                    crop.save(os.path.join(img_dir, f"{img_id:03d}_{ann_id}_{label}.tiff"))
 
-    #                 # The additional bbox will be used to create patches that show background or normal cells
-    #                 additional_bbox = [bbox[0]+100, bbox[1], bbox[2]+100, bbox[3]]
-    #                 # Validate the additional bbox
-    #                 if validate_patch(img_dims, annotations, additional_bbox):
-    #                     # Crop the image
-    #                     crop = image.crop(additional_bbox)
-    #                     label = 0
-    #                     # Save the crop
-    #                     crop.save(os.path.join(img_dir, f"{img_id:03d}_{ann_id}_{label}.tiff"))
-    #             else:
-    #                 # These boxes will be ignored
-    #                 pass
+                    # The additional bbox will be used to create patches that show background or normal cells
+                    additional_bbox = [bbox[0]+100, bbox[1], bbox[2]+100, bbox[3]]
+                    # Validate the additional bbox
+                    if validate_patch(img_dims, annotations, additional_bbox):
+                        # Crop the image
+                        crop = image.crop(additional_bbox)
+                        label = 0
+                        # Save the crop
+                        crop.save(os.path.join(img_dir, f"{img_id:03d}_{ann_id}_{label}.tiff"))
+                else:
+                    # These boxes will be ignored
+                    pass
 
 print('MIDOG: Processing complete')
 
