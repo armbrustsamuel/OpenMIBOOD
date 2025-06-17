@@ -118,7 +118,7 @@ if download_required:
 
     # download_path = f'{script_dir}/tmp/fnac2019.zip'
     download_path = f'{download_path}/fnac2019.zip'
-    # download_with_curl(download_url, download_path)
+    download_with_curl(download_url, download_path)
     
 if not os.path.exists(root) and os.path.exists(download_path):
     print('FNAC2019: Download complete')    
