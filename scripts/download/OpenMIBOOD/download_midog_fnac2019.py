@@ -14,7 +14,7 @@ parser.add_argument('--download_path', required=True)
 args = parser.parse_args()
 
 download_path = args.download_path
-
+download_path = f'{download_path}/fnac2019.zip'
 
 print('##############################################################')
 print('We will try to download the FNAC 2019 dataset automatically from https://1drv.ms/u/s!Al-T6d-_ENf6axsEbvhbEc2gUFs.')
