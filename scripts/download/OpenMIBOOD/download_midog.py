@@ -3,6 +3,12 @@ import os
 import json
 from PIL import Image
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--download_path', required=True)
+args = parser.parse_args()
+
+download_path = args.download_path
+
 download_lists = {'40282102': '002.tiff',  '40282099': '001.tiff', '40282096': '016.tiff', '40282105': '008.tiff', '40282111': '003.tiff', '40282108': '010.tiff', '40282114': '014.tiff',
  '40282132': '012.tiff', '40282129': '011.tiff', '40282126': '006.tiff', '40282117': '013.tiff', '40282123': '015.tiff', '40282135': '007.tiff', '40282120': '005.tiff', '40282138': '004.tiff', '40282141': '009.tiff',
  '40282144': '018.tiff', '40282147': '022.tiff', '40282153': '017.tiff', '40282150': '020.tiff', '40282162': '021.tiff', '40282156': '026.tiff', '40282159': '023.tiff', '40282165': '028.tiff', '40282180': '019.tiff',
@@ -78,8 +84,10 @@ for domain in domain_split:
         break
 
 if not all_found:
-    download_path = f'{script_dir}/tmp/midog'
-    download_with_figshare(download_lists, download_path)
+    # download_path = f'{script_dir}/tmp/midog'
+    # consider it has been saved elsewhere 
+    # download_with_figshare(download_lists, download_path)
+    # download_path = ""
 
     midog_data = json.load(open(os.path.join(download_path, 'MIDOGpp.json')))    
 
