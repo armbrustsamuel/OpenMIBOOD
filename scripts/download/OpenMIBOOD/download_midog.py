@@ -88,7 +88,7 @@ if not all_found:
     print('download_path :', download_path)
     # download_path = f'{script_dir}/tmp/midog'
     # consider it has been saved elsewhere 
-    # download_with_figshare(download_lists, download_path)
+    download_with_figshare(download_lists, download_path)
     # download_path = ""
 
     midog_data = json.load(open(os.path.join(download_path, 'MIDOGpp.json')))    

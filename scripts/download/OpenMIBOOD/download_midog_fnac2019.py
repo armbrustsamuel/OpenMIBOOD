@@ -121,7 +121,8 @@ if download_required:
     download_with_curl(download_url, download_path)
     
 if not os.path.exists(root) and os.path.exists(download_path):
-    print('FNAC2019: Download complete')    
+    print('FNAC2019: Download complete')   
+    print(download_path) 
     with zipfile.ZipFile(download_path, 'r') as zip_file:
         zip_output = f'{download_path}/fnac2019'
         os.makedirs(zip_output, exist_ok=True)
