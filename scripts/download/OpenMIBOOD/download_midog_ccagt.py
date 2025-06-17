@@ -4,6 +4,13 @@ import os
 import json
 from PIL import Image
 from tqdm import tqdm
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--download_path', required=True)
+args = parser.parse_args()
+
+download_path = args.download_path
 
 directories = ['wg4bpm33hj-2/images/A.zip', 'wg4bpm33hj-2/images/B.zip', 'wg4bpm33hj-2/images/C.zip', 'wg4bpm33hj-2/images/D.zip', 'wg4bpm33hj-2/images/E.zip', 
                          'wg4bpm33hj-2/images/F.zip', 'wg4bpm33hj-2/images/G.zip', 'wg4bpm33hj-2/images/H.zip', 'wg4bpm33hj-2/images/I.zip', 'wg4bpm33hj-2/images/J.zip', 
@@ -13,7 +20,7 @@ root = f'{script_dir}/../../../data/midog/far/ccagt_crops'
 
 if not os.path.exists(root):
     url = 'https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/wg4bpm33hj-2.zip'
-    download_path = f'{script_dir}/tmp/ccagt.zip'
+    # download_path = f'{script_dir}/tmp/ccagt.zip'
     download_with_curl(url, download_path)
     with zipfile.ZipFile(download_path, 'r') as zip_file:
         zip_output = f'{script_dir}/tmp/ccagt'

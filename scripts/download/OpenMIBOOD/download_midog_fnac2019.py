@@ -7,11 +7,18 @@ from tqdm import tqdm
 import numpy as np
 import cv2
 import time
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--download_path', required=True)
+args = parser.parse_args()
+
+download_path = args.download_path
 
 
 print('##############################################################')
 print('We will try to download the FNAC 2019 dataset automatically from https://1drv.ms/u/s!Al-T6d-_ENf6axsEbvhbEc2gUFs.')
-download_path = 'tmp/fnac2019.zip'
+# download_path = 'tmp/fnac2019.zip'
 print('If there are any errors with the automatic download, please visit the above link, download the file manually, move it to "tmp/fnac2019.zip", and run this script again.')
 print('##############################################################')
 
@@ -109,7 +116,7 @@ if download_required:
 
     download_url = response['@content.downloadUrl'] # From https://1drv.ms/u/s!Al-T6d-_ENf6axsEbvhbEc2gUFs
 
-    download_path = f'{script_dir}/tmp/fnac2019.zip'
+    # download_path = f'{script_dir}/tmp/fnac2019.zip'
     download_with_curl(download_url, download_path)
     
 if not os.path.exists(root) and os.path.exists(download_path):
