@@ -85,7 +85,7 @@ all_found = False
 #         break
 
 if not all_found:
-    print('Downloading MIDOGpp data...')
+    print('download_path :', download_path)
     # download_path = f'{script_dir}/tmp/midog'
     # consider it has been saved elsewhere 
     # download_with_figshare(download_lists, download_path)
