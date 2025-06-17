@@ -123,7 +123,7 @@ if download_required:
 if not os.path.exists(root) and os.path.exists(download_path):
     print('FNAC2019: Download complete')    
     with zipfile.ZipFile(download_path, 'r') as zip_file:
-        zip_output = f'{script_dir}/tmp/fnac2019'
+        zip_output = f'{download_path}/fnac2019'
         os.makedirs(zip_output, exist_ok=True)
         if not os.path.exists(os.path.join(zip_output, 'M')):
             zip_file.extractall(path=zip_output)
