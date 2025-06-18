@@ -165,8 +165,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         all_scores = []
         all_labels = []
 
-        perceptual_weight = 0.3  # or tune as needed
-        dice_weight = 0.7        # or tune as needed
+        # perceptual_weight = 0.3  # or tune as needed
+        # dice_weight = 0.7        # or tune as needed
 
         with torch.no_grad():
             for batch in dataloader:
@@ -174,24 +174,24 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 labels = batch['label']
                 reconstructed = self.autoencoder(data)
 
-                # # --- Use perceptual loss as OOD score ---
-                # scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
+                # --- Use perceptual loss as OOD score ---
+                scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
 
-                # all_scores.append(scores.cpu().detach().numpy())                
-                # all_labels.append(labels.cpu().detach().numpy())
+                all_scores.append(scores.cpu().detach().numpy())                
+                all_labels.append(labels.cpu().detach().numpy())
 
 
-                # Perceptual loss (per sample)
-                perceptual_scores = self.criterion(data, reconstructed)  # (batch_size,)
+                # # Perceptual loss (per sample)
+                # perceptual_scores = self.criterion(data, reconstructed)  # (batch_size,)
 
-                # Dice loss (per sample)
-                dice_scores = dice_loss(data, reconstructed)  # (batch_size,)
+                # # Dice loss (per sample)
+                # dice_scores = dice_loss(data, reconstructed)  # (batch_size,)
 
-                # Combine
-                combined_scores = perceptual_weight * perceptual_scores + dice_weight * dice_scores
+                # # Combine
+                # combined_scores = perceptual_weight * perceptual_scores + dice_weight * dice_scores
 
-                all_scores.append(combined_scores.cpu().numpy())
-                all_labels.append(labels.cpu().numpy())
+                # all_scores.append(combined_scores.cpu().numpy())
+                # all_labels.append(labels.cpu().numpy())
 
         all_scores = np.concatenate(all_scores)
         all_labels = np.concatenate(all_labels)
