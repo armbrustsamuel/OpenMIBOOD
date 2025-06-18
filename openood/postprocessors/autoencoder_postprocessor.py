@@ -155,17 +155,34 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder.eval()
         all_scores = []
         all_labels = []
+        
+        mse_weight = 0.5         # Try values like 0.1, 0.5, 1.0
+        perceptual_weight = 1.0  # Try values like 0.5, 1.0, 2.0
+
         with torch.no_grad():
             for batch in dataloader:
                 data = batch['data'].cuda()
                 labels = batch['label']
                 reconstructed = self.autoencoder(data)
 
-                # --- Use perceptual loss as OOD score ---
-                scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
+                # # --- Use perceptual loss as OOD score ---
+                # scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
 
-                all_scores.append(scores.cpu().detach().numpy())                
-                all_labels.append(labels.cpu().detach().numpy())
+                # all_scores.append(scores.cpu().detach().numpy())                
+                # all_labels.append(labels.cpu().detach().numpy())
+
+
+                # Perceptual loss (per sample)
+                perceptual_scores = self.criterion(data, reconstructed)  # (batch_size,)
+
+                # Pixel-wise MSE loss (per sample)
+                mse_scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))  # (batch_size,)
+
+                # Combine
+                combined_scores = perceptual_weight * perceptual_scores + mse_weight * mse_scores
+
+                all_scores.append(combined_scores.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
 
         all_scores = np.concatenate(all_scores)
         all_labels = np.concatenate(all_labels)
