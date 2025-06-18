@@ -190,22 +190,13 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # print("ID scores:", all_scores[all_labels == 0][:100])
         # print("OOD scores:", all_scores[all_labels != 0][:100])
 
-        # id_scores = all_scores[all_labels == 0]
-
-        fpr, tpr, thresholds = roc_curve((all_labels == 0).astype(int), -all_scores)
-        # Find threshold for desired TPR (e.g., 95%)
-        target_tpr = 0.95
-        idx = np.argmin(np.abs(tpr - target_tpr))
-        optimal_threshold = thresholds[idx]
-
-        # Use this threshold for test/inference
-        pred = np.where(all_scores < optimal_threshold, 0, -1)
+        id_scores = all_scores[all_labels == 0]
         
         # threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
-        # # threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
+        threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
         
         # # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
-        # pred = np.where(all_scores < threshold, 0, -1)
+        pred = np.where(all_scores < threshold, 0, -1)
         
         # return np.zeros_like(all_labels), all_scores, all_labels
         return pred, all_scores, all_labels
