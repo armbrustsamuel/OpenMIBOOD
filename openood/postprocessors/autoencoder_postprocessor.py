@@ -127,7 +127,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # UPDATE HERE with the correct path to your weights
 
         print("Loading autoencoder weights from /content/autoencoder_weights.pth")
-        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights.pth"))
+        self.autoencoder.load_state_dict(torch.load("/content/autoencoder_weights2.pth"))
 
         self.autoencoder.requires_grad_(False)
 
