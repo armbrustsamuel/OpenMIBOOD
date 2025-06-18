@@ -8,6 +8,15 @@ import torch.nn.functional as F
 import numpy as np
 import torchvision.models as models
 
+def dice_loss(input, recon, eps=1e-6):
+    # Assumes input and recon are (batch, C, H, W) and in [0, 1]
+    input_flat = input.view(input.size(0), -1)
+    recon_flat = recon.view(recon.size(0), -1)
+    intersection = (input_flat * recon_flat).sum(dim=1)
+    union = input_flat.sum(dim=1) + recon_flat.sum(dim=1)
+    dice = (2. * intersection + eps) / (union + eps)
+    return 1 - dice  # Dice loss, shape: (batch,)
+
 class MultiLayerFeatureExtractor(nn.Module):
     def __init__(self, vgg_features_sequential, selected_layers):
         super().__init__()
@@ -155,9 +164,9 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder.eval()
         all_scores = []
         all_labels = []
-        
-        mse_weight = 1.0         # Try values like 0.1, 0.5, 1.0
-        perceptual_weight = 0.5  # Try values like 0.5, 1.0, 2.0
+
+        perceptual_weight = 1.0  # or tune as needed
+        dice_weight = 1.0        # or tune as needed
 
         with torch.no_grad():
             for batch in dataloader:
@@ -175,11 +184,11 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 # Perceptual loss (per sample)
                 perceptual_scores = self.criterion(data, reconstructed)  # (batch_size,)
 
-                # Pixel-wise MSE loss (per sample)
-                mse_scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))  # (batch_size,)
+                # Dice loss (per sample)
+                dice_scores = dice_loss(data, reconstructed)  # (batch_size,)
 
                 # Combine
-                combined_scores = perceptual_weight * perceptual_scores + mse_weight * mse_scores
+                combined_scores = perceptual_weight * perceptual_scores + dice_weight * dice_scores
 
                 all_scores.append(combined_scores.cpu().numpy())
                 all_labels.append(labels.cpu().numpy())
