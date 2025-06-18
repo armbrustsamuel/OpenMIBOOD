@@ -165,8 +165,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         all_scores = []
         all_labels = []
 
-        perceptual_weight = 0.5  # or tune as needed
-        dice_weight = 0.5        # or tune as needed
+        perceptual_weight = 0.3  # or tune as needed
+        dice_weight = 0.7        # or tune as needed
 
         with torch.no_grad():
             for batch in dataloader:
