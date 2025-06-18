@@ -1,5 +1,6 @@
 # filepath: /Users/i843890/Documents/Doutorado/my-fork/OpenMIBOOD/openood/postprocessors/autoencoder_postprocessor.py
 from openood.postprocessors import BasePostprocessor
+from sklearn.metrics import roc_curve
 
 import torch
 import torch.nn as nn
@@ -139,11 +140,13 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # Choose layers and weights (example)
         # selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv4']
         # selected_layer_weights = [1.0, 0.75, 0.5]
-
-        # selected_layers = ['block2_conv2',"block3_conv3",'block4_conv3']
-        selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv3']
-        selected_layer_weights = [1.0, 12.0, 1.0]
-        # selected_layer_weights = [2.0 , 4.0 , 8.0]
+    
+        # best results so far: 
+        # selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv3']
+        # selected_layer_weights = [1.0, 12.0, 1.0]
+    
+        selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv3', 'block4_conv3']
+        selected_layer_weights = [1.0, 1.0, 1.0, 1.0]
 
 
         # Import your PerceptualLoss class here or define it above
@@ -175,6 +178,16 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # print("OOD scores:", all_scores[all_labels != 0][:100])
 
         id_scores = all_scores[all_labels == 0]
+
+
+        # fpr, tpr, thresholds = roc_curve((all_labels == 0).astype(int), -all_scores)
+        # # Find threshold for desired TPR (e.g., 95%)
+        # target_tpr = 0.95
+        # idx = np.argmin(np.abs(tpr - target_tpr))
+        # optimal_threshold = thresholds[idx]
+
+        # # Use this threshold for test/inference
+        # pred = np.where(all_scores < optimal_threshold, 0, -1)
         
         threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
         # threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
