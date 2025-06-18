@@ -156,8 +156,8 @@ class AutoencoderPostprocessor(BasePostprocessor):
         all_scores = []
         all_labels = []
         
-        mse_weight = 0.5         # Try values like 0.1, 0.5, 1.0
-        perceptual_weight = 1.0  # Try values like 0.5, 1.0, 2.0
+        mse_weight = 1.0         # Try values like 0.1, 0.5, 1.0
+        perceptual_weight = 0.5  # Try values like 0.5, 1.0, 2.0
 
         with torch.no_grad():
             for batch in dataloader:
