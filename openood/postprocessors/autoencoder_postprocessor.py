@@ -1,5 +1,6 @@
 # filepath: /Users/i843890/Documents/Doutorado/my-fork/OpenMIBOOD/openood/postprocessors/autoencoder_postprocessor.py
 from openood.postprocessors import BasePostprocessor
+from sklearn.metrics import roc_curve
 
 import torch
 import torch.nn as nn
@@ -139,12 +140,10 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # Choose layers and weights (example)
         # selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv4']
         # selected_layer_weights = [1.0, 0.75, 0.5]
-
-        # selected_layers = ['block2_conv2',"block3_conv3",'block4_conv3']
+    
+        # best results so far: 
         selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv3']
         selected_layer_weights = [1.0, 12.0, 1.0]
-        # selected_layer_weights = [2.0 , 4.0 , 8.0]
-
 
         # Import your PerceptualLoss class here or define it above
         self.criterion = PerceptualLoss(vgg19, selected_layers, selected_layer_weights)
@@ -156,17 +155,34 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder.eval()
         all_scores = []
         all_labels = []
+        
+        mse_weight = 0.5         # Try values like 0.1, 0.5, 1.0
+        perceptual_weight = 1.0  # Try values like 0.5, 1.0, 2.0
+
         with torch.no_grad():
             for batch in dataloader:
                 data = batch['data'].cuda()
                 labels = batch['label']
                 reconstructed = self.autoencoder(data)
 
-                # --- Use perceptual loss as OOD score ---
-                scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
+                # # --- Use perceptual loss as OOD score ---
+                # scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
 
-                all_scores.append(scores.cpu().detach().numpy())                
-                all_labels.append(labels.cpu().detach().numpy())
+                # all_scores.append(scores.cpu().detach().numpy())                
+                # all_labels.append(labels.cpu().detach().numpy())
+
+
+                # Perceptual loss (per sample)
+                perceptual_scores = self.criterion(data, reconstructed)  # (batch_size,)
+
+                # Pixel-wise MSE loss (per sample)
+                mse_scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))  # (batch_size,)
+
+                # Combine
+                combined_scores = perceptual_weight * perceptual_scores + mse_weight * mse_scores
+
+                all_scores.append(combined_scores.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
 
         all_scores = np.concatenate(all_scores)
         all_labels = np.concatenate(all_labels)
@@ -174,13 +190,22 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # print("ID scores:", all_scores[all_labels == 0][:100])
         # print("OOD scores:", all_scores[all_labels != 0][:100])
 
-        id_scores = all_scores[all_labels == 0]
+        # id_scores = all_scores[all_labels == 0]
+
+        fpr, tpr, thresholds = roc_curve((all_labels == 0).astype(int), -all_scores)
+        # Find threshold for desired TPR (e.g., 95%)
+        target_tpr = 0.95
+        idx = np.argmin(np.abs(tpr - target_tpr))
+        optimal_threshold = thresholds[idx]
+
+        # Use this threshold for test/inference
+        pred = np.where(all_scores < optimal_threshold, 0, -1)
         
-        threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
-        # threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
+        # threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
+        # # threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
         
-        # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
-        pred = np.where(all_scores < threshold, 0, -1)
+        # # pred = 0 (ID) if score < threshold, -1 (OOD) otherwise
+        # pred = np.where(all_scores < threshold, 0, -1)
         
         # return np.zeros_like(all_labels), all_scores, all_labels
         return pred, all_scores, all_labels
