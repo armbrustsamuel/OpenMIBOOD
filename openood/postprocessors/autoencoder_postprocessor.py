@@ -143,7 +143,7 @@ class AutoencoderPostprocessor(BasePostprocessor):
     
         # best results so far: 
         selected_layers = ['block1_conv2', 'block2_conv2', 'block3_conv3']
-        selected_layer_weights = [1.0, 1.0, 1.0]
+        selected_layer_weights = [1.0, 12.0, 1.0]
 
         # Import your PerceptualLoss class here or define it above
         self.criterion = PerceptualLoss(vgg19, selected_layers, selected_layer_weights)
@@ -155,9 +155,6 @@ class AutoencoderPostprocessor(BasePostprocessor):
         self.autoencoder.eval()
         all_scores = []
         all_labels = []
-        
-        mse_weight = 1.0         # Try values like 0.1, 0.5, 1.0
-        perceptual_weight = 0.5  # Try values like 0.5, 1.0, 2.0
 
         with torch.no_grad():
             for batch in dataloader:
@@ -165,24 +162,11 @@ class AutoencoderPostprocessor(BasePostprocessor):
                 labels = batch['label']
                 reconstructed = self.autoencoder(data)
 
-                # # --- Use perceptual loss as OOD score ---
-                # scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
+                # --- Use perceptual loss as OOD score ---
+                scores = self.criterion(data, reconstructed)  # shape: (batch_size,)
 
-                # all_scores.append(scores.cpu().detach().numpy())                
-                # all_labels.append(labels.cpu().detach().numpy())
-
-
-                # Perceptual loss (per sample)
-                perceptual_scores = self.criterion(data, reconstructed)  # (batch_size,)
-
-                # Pixel-wise MSE loss (per sample)
-                mse_scores = torch.mean((data - reconstructed) ** 2, dim=(1, 2, 3))  # (batch_size,)
-
-                # Combine
-                combined_scores = perceptual_weight * perceptual_scores + mse_weight * mse_scores
-
-                all_scores.append(combined_scores.cpu().numpy())
-                all_labels.append(labels.cpu().numpy())
+                all_scores.append(scores.cpu().detach().numpy())                
+                all_labels.append(labels.cpu().detach().numpy())
 
         all_scores = np.concatenate(all_scores)
         all_labels = np.concatenate(all_labels)
@@ -191,6 +175,15 @@ class AutoencoderPostprocessor(BasePostprocessor):
         # print("OOD scores:", all_scores[all_labels != 0][:100])
 
         id_scores = all_scores[all_labels == 0]
+
+        # fpr, tpr, thresholds = roc_curve((all_labels == 0).astype(int), -all_scores)
+        # # Find threshold for desired TPR (e.g., 95%)
+        # target_tpr = 0.95
+        # idx = np.argmin(np.abs(tpr - target_tpr))
+        # optimal_threshold = thresholds[idx]
+
+        # # Use this threshold for test/inference
+        # pred = np.where(all_scores < optimal_threshold, 0, -1)
         
         # threshold = np.median(id_scores) if len(id_scores) > 0 else np.median(all_scores)
         threshold = id_scores.mean() + 1.0 * id_scores.std() if len(id_scores) > 0 else np.median(all_scores)
