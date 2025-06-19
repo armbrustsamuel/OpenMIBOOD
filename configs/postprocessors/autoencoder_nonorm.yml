@@ -1,0 +1,14 @@
+postprocessor:
+  name: autoencoder_nonorm
+  APS_mode: False
+  postprocessor_args:
+    percentile: 90
+  # postprocessor_sweep:
+    # percentile_list: [65, 70, 75, 80, 85, 90, 95]
+    # The following parameters are specific to the autoencoder postprocessor
+    # and will be used in the sweep.
+    # latent_dim_list: [32, 64, 128]
+    # reconstruction_loss_list: ['mse', 'mae']
+    # activation_list: ['relu', 'tanh', 'sigmoid']
+    # optimizer_list: ['adam', 'sgd']
+    # learning_rate_list: [0.001, 0.01, 0.1]
