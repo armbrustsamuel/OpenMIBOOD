@@ -27,7 +27,7 @@ def contrast_stretching(tensor):
     return stretched
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--postprocessor', choices=['ash', 'dice', 'dropout', 'ebo', 'fdbd', 'gen', 'klm', 'knn', 'mls', 'mds_ensemble', 'mds', 'nnguide', 'odin', 'openmax', 'rankfeat', 'react', 'relation', 'residual', 'rmds', 'scale', 'she', 'temp_scaling', 'vim', 'msp', 'autoencoder'], default='msp')
+parser.add_argument('--postprocessor', choices=['ash', 'dice', 'dropout', 'ebo', 'fdbd', 'gen', 'klm', 'knn', 'mls', 'mds_ensemble', 'mds', 'nnguide', 'odin', 'openmax', 'rankfeat', 'react', 'relation', 'residual', 'rmds', 'scale', 'she', 'temp_scaling', 'vim', 'msp', 'autoencoder', 'autoencoder_nonorm', 'autoencoder_norm'], default='msp')
 parser.add_argument('--save-csv', action='store_true')
 parser.add_argument('--save-score', action='store_true')
 parser.add_argument('--batch-size', default=200, type=int)

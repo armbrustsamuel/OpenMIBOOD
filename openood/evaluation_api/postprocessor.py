@@ -2,6 +2,8 @@ import os
 import urllib.request
 
 from openood.postprocessors.autoencoder_postprocessor import AutoencoderPostprocessor
+from openood.postprocessors.autoencoder_no_norm_postprocessor import AutoencoderNonNormPostprocessor
+from openood.postprocessors.autoencoder_norm_postprocessor import AutoencoderNormPostprocessor
 
 from openood.postprocessors import (
     ASHPostprocessor, BasePostprocessor, ConfBranchPostprocessor,
@@ -18,7 +20,8 @@ from openood.postprocessors import (
     RMDSPostprocessor, SHEPostprocessor, CIDERPostprocessor, NPOSPostprocessor,
     GENPostprocessor, NNGuidePostprocessor, RelationPostprocessor,
     T2FNormPostprocessor, ReweightOODPostprocessor, fDBDPostprocessor,
-    AdaScalePostprocessor, IODINPostprocessor, NCIPostprocessor, AutoencoderPostprocessor)
+    AdaScalePostprocessor, IODINPostprocessor, NCIPostprocessor, 
+    AutoencoderPostprocessor, AutoencoderNonNormPostprocessor, AutoencoderNormPostprocessor)
 from openood.utils.config import Config, merge_configs
 
 postprocessors = {
@@ -72,6 +75,8 @@ postprocessors = {
     'adascale_a': AdaScalePostprocessor,
     'adascale_l': AdaScalePostprocessor,
     'autoencoder': AutoencoderPostprocessor,
+    'autoencoder_nonorm': AutoencoderNonNormPostprocessor,
+    'autoencoder_norm': AutoencoderNormPostprocessor
 }
 
 link_prefix = 'https://raw.githubusercontent.com/Jingkang50/OpenOOD/main/configs/postprocessors/'
@@ -93,6 +98,10 @@ def get_postprocessor(config_root: str, postprocessor_name: str,
                            }}))
     if postprocessor_name == 'autoencoder':
         return AutoencoderPostprocessor(config), config
+    elif postprocessor_name == 'autoencoder_nonorm':
+        return AutoencoderNonNormPostprocessor(config), config
+    elif postprocessor_name == 'autoencoder_norm':
+        return AutoencoderNormPostprocessor(config), config
     postprocessor = postprocessors[postprocessor_name](config)
     postprocessor.APS_mode = config.postprocessor.APS_mode
     postprocessor.hyperparam_search_done = False

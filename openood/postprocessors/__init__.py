@@ -48,3 +48,5 @@ from .t2fnorm_postprocessor import T2FNormPostprocessor
 from .reweightood_postprocessor import ReweightOODPostprocessor
 from .adascale_postprocessor import AdaScalePostprocessor
 from .autoencoder_postprocessor import AutoencoderPostprocessor
+from .autoencoder_no_norm_postprocessor import AutoencoderNonNormPostprocessor
+from .autoencoder_norm_postprocessor import AutoencoderNormPostprocessor
