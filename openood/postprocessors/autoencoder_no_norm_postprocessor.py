@@ -109,7 +109,7 @@ class AutoencoderNonNorm(nn.Module):
             nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),         # 16x16xlatent_dim -> 16x16x64
             nn.ReLU(),
             nn.Upsample(scale_factor=2, mode='nearest'),                           # 16x16x64 -> 32x32x64
-            # nn.BatchNorm2d(64),
+            nn.BatchNorm2d(64),
 
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),                # 32x32x64 -> 32x32x128
             nn.ReLU(),
