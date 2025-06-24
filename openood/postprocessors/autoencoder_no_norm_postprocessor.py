@@ -90,7 +90,7 @@ class AutoencoderNonNorm(nn.Module):
             # nn.ReLU(),
             nn.ReLU(inplace=False),  # <-- Ensure inplace=False
             nn.MaxPool2d(kernel_size=2, stride=2, padding=0),       # 32x32x64 -> 16x16x64
-            # nn.GroupNorm(num_groups=64, num_channels=64),  # or 1 group per channel (i.e., InstanceNorm)
+            nn.GroupNorm(num_groups=64, num_channels=64),  # or 1 group per channel (i.e., InstanceNorm)
 
             nn.Conv2d(64, latent_dim, kernel_size=3, stride=1, padding=1), # 16x16x64 -> 16x16xlatent_dim
             # nn.ReLU(),
@@ -104,7 +104,7 @@ class AutoencoderNonNorm(nn.Module):
             nn.Conv2d(latent_dim, latent_dim, kernel_size=3, stride=1, padding=1), # 8x8xlatent_dim -> 8x8xlatent_dim
             nn.ReLU(),
             nn.Upsample(scale_factor=2, mode='nearest'),                           # 8x8xlatent_dim -> 16x16xlatent_dim
-            # nn.BatchNorm2d(latent_dim),
+            nn.BatchNorm2d(latent_dim),
 
             nn.Conv2d(latent_dim, 64, kernel_size=3, stride=1, padding=1),         # 16x16xlatent_dim -> 16x16x64
             nn.ReLU(),
