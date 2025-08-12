@@ -39,7 +39,7 @@ class ViTFeatureExtractor(nn.Module):
             cls_token = features[:, 0, :]  # (B, hidden_dim)
 
             # Clear the stored output for the next forward pass
-            self.layer_outputs.clear()
+            # self.layer_outputs.clear()
 
         return cls_token
 
