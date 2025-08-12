@@ -5,32 +5,35 @@ from torchvision.models import vit_b_16, ViT_B_16_Weights
 from openood.postprocessors import BasePostprocessor
 
 class ViTFeatureExtractor(nn.Module):
-    def __init__(self):
+    def __init__(self, layer_idx=-1):
         super().__init__()
         # Load the full ViT model with weights and set to evaluation mode
         self.vit = vit_b_16(weights=ViT_B_16_Weights.IMAGENET1K_V1).eval().cuda()
         # Freeze all parameters
         for p in self.vit.parameters():
             p.requires_grad = False
+        self.layer_idx = layer_idx
 
-        # Define a dictionary to store the output of the hooked layer
-        self.layer_outputs = {}
+        # # Define a dictionary to store the output of the hooked layer
+        # self.layer_outputs = {}
 
-        # Define the hook function
-        def hook_fn(module, input, output):
-            self.layer_outputs['encoder_ln_output'] = output
+        # # Define the hook function
+        # def hook_fn(module, input, output):
+        #     self.layer_outputs['encoder_ln_output'] = output
 
-        # Register the hook on the final Layer Normalization layer after the encoder
-        self.vit.encoder.ln.register_forward_hook(hook_fn)
+        # # Register the hook on the final Layer Normalization layer after the encoder
+        # self.vit.encoder.ln.register_forward_hook(hook_fn)
 
     def forward(self, x):
         # x: (B, 3, H, W), should already be normalized to ImageNet stats
         with torch.no_grad():
             # Perform a standard forward pass through the ViT model
-            _ = self.vit(x)  # We don't need the final classification output
+            # _ = self.vit(x)  # We don't need the final classification output
 
             # Retrieve the stored output from the hook
-            features = self.layer_outputs['encoder_ln_output']
+            # features = self.layer_outputs['encoder_ln_output']
+            features = self.vit._process_input(x)
+            features = self.vit.encoder(features)
 
             # Extract the CLS token feature (the first token)
             cls_token = features[:, 0, :]  # (B, hidden_dim)
