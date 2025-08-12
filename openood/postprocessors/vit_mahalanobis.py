@@ -5,54 +5,39 @@ from torchvision.models import vit_b_16, ViT_B_16_Weights
 from openood.postprocessors import BasePostprocessor
 
 class ViTFeatureExtractor(nn.Module):
-    def __init__(self, ):
+    def __init__(self):
         super().__init__()
         # Load the full ViT model with weights and set to evaluation mode
         self.vit = vit_b_16(weights=ViT_B_16_Weights.IMAGENET1K_V1).eval().cuda()
         # Freeze all parameters
         for p in self.vit.parameters():
             p.requires_grad = False
-        
-        # Hook to extract features before the final classifier
-        self.features = None
+
+        # Define a dictionary to store the output of the hooked layer
+        self.layer_outputs = {}
+
+        # Define the hook function
         def hook_fn(module, input, output):
-            self.features = input[0]  # Get the input to the head (after encoder)
-        
-        self.vit.heads.register_forward_hook(hook_fn)
+            self.layer_outputs['encoder_ln_output'] = output
 
-        # # Define a dictionary to store the output of the hooked layer
-        # self.layer_outputs = {}
+        # Register the hook on the final Layer Normalization layer after the encoder
+        self.vit.encoder.ln.register_forward_hook(hook_fn)
 
-        # # Define the hook function
-        # def hook_fn(module, input, output):
-        #     self.layer_outputs['encoder_ln_output'] = output
-
-        # # Register the hook on the final Layer Normalization layer after the encoder
-        # self.vit.encoder.ln.register_forward_hook(hook_fn)
-
-    # def forward(self, x):
-    #     # x: (B, 3, H, W), should already be normalized to ImageNet stats
-    #     with torch.no_grad():
-    #         # Perform a standard forward pass through the ViT model
-    #         # _ = self.vit(x)  # We don't need the final classification output
-
-    #         # Retrieve the stored output from the hook
-    #         # features = self.layer_outputs['encoder_ln_output']
-    #         features = self.vit._process_input(x)
-    #         features = self.vit.encoder(features)
-
-    #         # Extract the CLS token feature (the first token)
-    #         cls_token = features[:, 0, :]  # (B, hidden_dim)
-
-    #         # Clear the stored output for the next forward pass
-    #         # self.layer_outputs.clear()
-
-    #     return cls_token
     def forward(self, x):
+        # x: (B, 3, H, W), should already be normalized to ImageNet stats
         with torch.no_grad():
-            _ = self.vit(x)  # Run full forward pass
-            features = self.features  # Extract features from hook
-            cls_token = features[:, 0, :]  # Get CLS token
+            # Perform a standard forward pass through the ViT model
+            _ = self.vit(x)  # We don't need the final classification output
+
+            # Retrieve the stored output from the hook
+            features = self.layer_outputs['encoder_ln_output']
+
+            # Extract the CLS token feature (the first token)
+            cls_token = features[:, 0, :]  # (B, hidden_dim)
+
+            # Clear the stored output for the next forward pass
+            self.layer_outputs.clear()
+
         return cls_token
 
 class ViTMahalanobisPostprocessor(BasePostprocessor):
