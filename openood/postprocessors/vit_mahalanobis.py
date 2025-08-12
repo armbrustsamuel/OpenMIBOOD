@@ -18,18 +18,37 @@ class ViTFeatureExtractor(nn.Module):
         
         self.vit.heads.register_forward_hook(hook_fn)
     
+    # def forward(self, x):
+    #     with torch.no_grad():
+    #         _ = self.vit(x)  # Run full forward pass
+    #         features = self.features  # Extract features from hook
+            
+    #         # Check if features is already 2D (just CLS token) or 3D (full sequence)
+    #         if len(features.shape) == 3:
+    #             cls_token = features[:, 0, :]  # Get CLS token from sequence
+    #         else:
+    #             cls_token = features  # Already the CLS token
+                
+    #     return cls_token
     def forward(self, x):
         with torch.no_grad():
-            _ = self.vit(x)  # Run full forward pass
-            features = self.features  # Extract features from hook
+            # Manually process like ViT does internally
+            x = self.vit.conv_proj(x)  # Patch embedding
+            x = x.reshape(x.shape[0], x.shape[1], -1)
+            x = x.permute(0, 2, 1)
             
-            # Check if features is already 2D (just CLS token) or 3D (full sequence)
-            if len(features.shape) == 3:
-                cls_token = features[:, 0, :]  # Get CLS token from sequence
-            else:
-                cls_token = features  # Already the CLS token
-                
-        return cls_token
+            # Add class token and positional embedding
+            batch_class_token = self.vit.class_token.expand(x.shape[0], -1, -1)
+            x = torch.cat([batch_class_token, x], dim=1)
+            x = self.vit.encoder.pos_embedding + x
+            x = self.vit.encoder.dropout(x)
+            
+            # Pass through encoder layers
+            x = self.vit.encoder.layers(x)
+            x = self.vit.encoder.ln(x)
+            
+            cls_token = x[:, 0, :]
+            return cls_token
 
 # class ViTFeatureExtractor(nn.Module):
 #     def __init__(self):
