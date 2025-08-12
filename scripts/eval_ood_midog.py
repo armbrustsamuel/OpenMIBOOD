@@ -67,15 +67,29 @@ net = ResNet50(num_classes=3)
 ckpt = torch.load(ckpt_path, map_location='cpu')
 net.load_state_dict(ckpt)
 
-preprocessor = trn.Compose([
-    # trn.Resize(64),
-    # trn.CenterCrop(64),
-    trn.Resize((64, 64)), # Resize to match autoencoder input
-    trn.ToTensor(),
-    trn.Lambda(contrast_stretching)
-    # trn.Normalize(mean=[0.712, 0.496, 0.756],
-                    # std=[0.167, 0.167, 0.110])
-])
+if postprocessor is 'vit_mahalanobis':
+    preprocessor = trn.Compose([
+        # trn.Resize(64),
+        # trn.CenterCrop(64),
+        trn.Resize((224, 224)), # Resize to match autoencoder input
+        trn.ToTensor(),
+        trn.Lambda(contrast_stretching)
+        # trn.Normalize(mean=[0.712, 0.496, 0.756],
+                        # std=[0.167, 0.167, 0.110])
+    ])
+else:
+    preprocessor = trn.Compose([
+        # trn.Resize(64),
+        # trn.CenterCrop(64),
+        trn.Resize((64, 64)), # Resize to match autoencoder input
+        trn.ToTensor(),
+        trn.Lambda(contrast_stretching)
+        # trn.Normalize(mean=[0.712, 0.496, 0.756],
+                        # std=[0.167, 0.167, 0.110])
+    ])
+
+
+
 #NAECHSTE SCHRITTE: NEUEN CLEANEN CONTAINER ANLEGEN - IN DEM CONTAINER DANN OPENOOD INSTALLIEREN UND NOCHMAL LAUFEN LASSEN
 net.cuda()
 net.eval()
