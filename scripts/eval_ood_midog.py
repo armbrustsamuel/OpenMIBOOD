@@ -67,7 +67,7 @@ net = ResNet50(num_classes=3)
 ckpt = torch.load(ckpt_path, map_location='cpu')
 net.load_state_dict(ckpt)
 
-if postprocessor is 'vit_mahalanobis':
+if postprocessor_name == 'vit_mahalanobis':
     preprocessor = trn.Compose([
         # trn.Resize(64),
         # trn.CenterCrop(64),
