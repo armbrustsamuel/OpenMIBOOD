@@ -4,6 +4,8 @@ import urllib.request
 from openood.postprocessors.autoencoder_postprocessor import AutoencoderPostprocessor
 from openood.postprocessors.autoencoder_no_norm_postprocessor import AutoencoderNonNormPostprocessor
 from openood.postprocessors.autoencoder_norm_postprocessor import AutoencoderNormPostprocessor
+from openood.postprocessors.autoencoder_nflows import FlowAutoencoderPostprocessor
+from openood.postprocessors.vit_mahalanobis import ViTMahalanobisPostprocessor
 
 from openood.postprocessors import (
     ASHPostprocessor, BasePostprocessor, ConfBranchPostprocessor,
@@ -20,8 +22,8 @@ from openood.postprocessors import (
     RMDSPostprocessor, SHEPostprocessor, CIDERPostprocessor, NPOSPostprocessor,
     GENPostprocessor, NNGuidePostprocessor, RelationPostprocessor,
     T2FNormPostprocessor, ReweightOODPostprocessor, fDBDPostprocessor,
-    AdaScalePostprocessor, IODINPostprocessor, NCIPostprocessor, 
-    AutoencoderPostprocessor, AutoencoderNonNormPostprocessor, AutoencoderNormPostprocessor)
+    AdaScalePostprocessor, IODINPostprocessor, NCIPostprocessor,
+    AutoencoderPostprocessor, AutoencoderNonNormPostprocessor, AutoencoderNormPostprocessor, FlowAutoencoderPostprocessor, ViTMahalanobisPostprocessor)
 from openood.utils.config import Config, merge_configs
 
 postprocessors = {
@@ -76,7 +78,9 @@ postprocessors = {
     'adascale_l': AdaScalePostprocessor,
     'autoencoder': AutoencoderPostprocessor,
     'autoencoder_nonorm': AutoencoderNonNormPostprocessor,
-    'autoencoder_norm': AutoencoderNormPostprocessor
+    'autoencoder_norm': AutoencoderNormPostprocessor,
+    'autoencoder_nflows': FlowAutoencoderPostprocessor,
+    'vit_mahalanobis': ViTMahalanobisPostprocessor
 }
 
 link_prefix = 'https://raw.githubusercontent.com/Jingkang50/OpenOOD/main/configs/postprocessors/'
@@ -102,6 +106,11 @@ def get_postprocessor(config_root: str, postprocessor_name: str,
         return AutoencoderNonNormPostprocessor(config), config
     elif postprocessor_name == 'autoencoder_norm':
         return AutoencoderNormPostprocessor(config), config
+    elif postprocessor_name == 'autoencoder_nflows':
+        return FlowAutoencoderPostprocessor(config), config
+    elif postprocessor_name == 'vit_mahalanobis':
+        return ViTMahalanobisPostprocessor(config), config
+    
     postprocessor = postprocessors[postprocessor_name](config)
     postprocessor.APS_mode = config.postprocessor.APS_mode
     postprocessor.hyperparam_search_done = False

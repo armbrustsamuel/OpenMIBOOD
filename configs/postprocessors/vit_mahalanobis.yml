@@ -1,0 +1,27 @@
+postprocessor:
+  name: vit_mahalanobis
+  # The following parameters are specific to the ViT Mahalanobis postprocessor
+  # and will be used in the sweep.
+  feature_extractor: 'vit_mahalanobis'
+  feature_extractor_args:
+    model_name: 'vit_base_patch16_224'
+    pretrained: True
+    feature_layer: 'last_hidden_state'
+    feature_dim: 768
+  mahalanobis_args: 
+    num_classes: 10
+    num_samples: 1000
+    mahalanobis_distance: 'mahalanobis'
+    use_covariance: True
+    use_mean: True
+    use_distance: True
+    use_score: True
+    use_feature: True
+    use_feature_score: True
+    use_feature_distance: True
+    use_feature_covariance: True
+    use_feature_mean: True
+    use_feature_variance: True
+    use_feature_entropy: True
+    use_feature_kurtosis: True
+    use_feature_skewness: True  

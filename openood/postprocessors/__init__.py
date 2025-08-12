@@ -50,3 +50,5 @@ from .adascale_postprocessor import AdaScalePostprocessor
 from .autoencoder_postprocessor import AutoencoderPostprocessor
 from .autoencoder_no_norm_postprocessor import AutoencoderNonNormPostprocessor
 from .autoencoder_norm_postprocessor import AutoencoderNormPostprocessor
+from .autoencoder_nflows import FlowAutoencoderPostprocessor
+from .vit_mahalanobis import ViTMahalanobisPostprocessor

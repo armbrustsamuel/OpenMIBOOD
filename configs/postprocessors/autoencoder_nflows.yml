@@ -1,0 +1,6 @@
+postprocessor:
+  name: flow_autoencoder
+  autoencoder_weights: /content/autoencoder_weights.pth
+  flow_weights: /content/flow_weights.pth
+  latent_dim: 32
+  flow_blocks: 4
