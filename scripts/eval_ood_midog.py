@@ -73,7 +73,7 @@ if postprocessor_name == 'vit_mahalanobis':
         # trn.CenterCrop(64),
         trn.Resize((224, 224)), # Resize to match autoencoder input
         trn.ToTensor(),
-        trn.Lambda(contrast_stretching),
+        # trn.Lambda(contrast_stretching),
         trn.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     ])
