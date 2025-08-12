@@ -48,7 +48,7 @@ class ViTMahalanobisPostprocessor(BasePostprocessor):
         
         # Load pre-fitted Mahalanobis parameters
         # You should save these after calling fit_id_distribution() and load them here
-        mahalanobis_data = torch.load("/content/vit_mahalanobis_params.pth")
+        mahalanobis_data = torch.load("/content/vit_mahalanobis_params.pth",weights_only=False)
         self.mean = mahalanobis_data['mean']
         self.cov_inv = mahalanobis_data['cov_inv']
         
