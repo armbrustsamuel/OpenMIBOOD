@@ -17,12 +17,18 @@ class ViTFeatureExtractor(nn.Module):
             self.features = input[0]  # Get the input to the head (after encoder)
         
         self.vit.heads.register_forward_hook(hook_fn)
-
+    
     def forward(self, x):
         with torch.no_grad():
             _ = self.vit(x)  # Run full forward pass
             features = self.features  # Extract features from hook
-            cls_token = features[:, 0, :]  # Get CLS token
+            
+            # Check if features is already 2D (just CLS token) or 3D (full sequence)
+            if len(features.shape) == 3:
+                cls_token = features[:, 0, :]  # Get CLS token from sequence
+            else:
+                cls_token = features  # Already the CLS token
+                
         return cls_token
 
 # class ViTFeatureExtractor(nn.Module):
